@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AdvancedToDoListMauiApp.Views.PunishmentPage"
+             NavigationPage.HasNavigationBar="False"
+             NavigationPage.HasBackButton="False"
+             BackgroundColor="Black">
+
+    <Grid x:Name="MainGrid" RowDefinitions=".08*, .15*, .12*, .65*" Margin="25">
+        <!--Page name and points-->
+        <Grid ColumnDefinitions="*, *">
+            <Label
+                Text="Punishments"
+                FontSize="20"
+            FontAttributes="Bold"
+                VerticalOptions="Start"
+                Margin="0, 0, 0, 0"/>
+
+            <Border
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 80,80,80,80"
+                HeightRequest="30"
+                WidthRequest="100"
+                VerticalOptions="Start"
+                HorizontalOptions="End"
+                Grid.Column="1">
+
+                <Grid ColumnDefinitions="*, *, *, *">
+                    <Image
+                        Source="coin_black"
+                        Margin="2, 0, 0, 0"/>
+
+                    <Label
+                        x:Name="LabelPunishmentPoints"
+                        Text="1"
+                        TextColor="Black"
+                        FontSize="20"
+                        Margin="0, 0, 5, 0"
+                        HorizontalTextAlignment="End"
+                        VerticalTextAlignment="Center"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="3"/>
+                </Grid>
+                
+            </Border>
+        </Grid>
+
+        <!--Butons Point Converter and Rules-->
+        <Grid Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*, *" Margin="0, 10">
+
+            <Border
+                StrokeShape="RoundRectangle 10,10,10,10"
+                WidthRequest="140"
+                HorizontalOptions="Start">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="BorderOpenPointsConverterPage_Tapped"/>
+                </Border.GestureRecognizers>
+                
+                <VerticalStackLayout>
+                    <Image
+                    Source="convert_qwertyuiop.png"
+                    WidthRequest="25"
+                    BackgroundColor="Black"
+                        Margin="0, 5, 0, 0"/>
+
+                    <Label
+                    Text="Point"
+                    HorizontalOptions="Center"/>
+
+                    <Label
+                    Text="Converter"
+                    HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Border 
+                Grid.Column="1"
+                StrokeShape="RoundRectangle 10,10,10,10"
+                WidthRequest="140"
+                HorizontalOptions="End">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="BorderOpenRulesPage_Tapped"/>
+                </Border.GestureRecognizers>
+                
+                <VerticalStackLayout>
+                    <Image
+                    Source="not_allowed_qwertyuiop.png"
+                    WidthRequest="25"
+                        Margin="0, 5, 0, 0"/>
+
+                    <Label
+                    Text="Rules"
+                    HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+        
+        <!--List Title-->
+        <Label
+            Text="Current Punishments:"
+            TextColor="White"
+            FontSize="20"
+            FontAttributes="Bold"
+            Margin="0, 20, 0, 0"
+            Grid.Row="2"/>
+
+        <!--Punishment List-->
+        <CollectionView
+            Grid.Row="3"
+            ItemsSource="{Binding Punishments}"
+            VerticalOptions="Start">
+
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout ItemSpacing="10" Orientation="Vertical"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout>
+                        <Label
+                            Text="Hi there!"
+                            TextColor="White"/>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

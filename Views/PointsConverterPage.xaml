@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AdvancedToDoListMauiApp.Views.PointsConverterPage"
+             BackgroundColor="Black">
+
+    <Grid RowDefinitions=".15*, .20*, .45*, .2*" ColumnDefinitions=".25*, .25*, .25*, .25*" Margin="20">
+        <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="4">
+            <Label
+                Text="Punisment Types List:"
+                TextColor="White"
+                FontSize="24"
+                FontAttributes="Bold"
+                Margin="0, 0, 0, 15"
+                Grid.Row="0"
+                Grid.ColumnSpan="3"/>
+
+            <Rectangle Fill="Gray"/>
+        </VerticalStackLayout>
+        
+        <ScrollView Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="4" BackgroundColor="Black">
+            
+        </ScrollView>
+    </Grid>
+</ContentPage>

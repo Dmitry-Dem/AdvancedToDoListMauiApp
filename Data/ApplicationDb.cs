@@ -19,14 +19,30 @@ namespace AdvancedToDoListMauiApp.Data
             _conn.CreateTable<PunishmentType>();
             _conn.CreateTable<UserTask>();
         }
+        //Punishment methods
         public List<Punishment> GetAllPunishments()
 		{
             return _conn.Table<Punishment>().ToList();
 		}
+        public Punishment GetPunishmentById(int Id)
+        {
+            var punishList = GetAllPunishments();
+
+            return punishList.FirstOrDefault(p => p.Id == Id);
+        }
         public void AddNewPunishment(Punishment punishment)
         {
             _conn.Insert(punishment);
         }
+        public void UpdatePunishment(Punishment punishment)
+        {
+            _conn.Update(punishment);
+        }
+		public void DeletePunishment(Punishment punishment)
+		{
+			_conn.Delete(punishment);
+		}
+		//Punishment Point methods
 		public List<PunishmentPoint> GetAllPunishmentPoints()
 		{
 			return _conn.Table<PunishmentPoint>().ToList();
@@ -39,5 +55,28 @@ namespace AdvancedToDoListMauiApp.Data
         {
             _conn.Update(punishmentPoint);
         }
+		//Punishment Types methods
+        public List<PunishmentType> GetAllPunishmentTypes()
+        {
+            return _conn.Table<PunishmentType>().ToList();
+        }
+		public PunishmentType GetPunishmentTypeById(int Id)
+		{
+			var punishTypesList = GetAllPunishmentTypes();
+
+			return punishTypesList.FirstOrDefault(pt => pt.Id == Id);
+		}
+		public void AddNewPunishmentType(PunishmentType punishmentType)
+		{
+			_conn.Insert(punishmentType);
+		}
+		public void UpdatePunishmentType(PunishmentType punishmentType)
+		{
+			_conn.Update(punishmentType);
+		}
+		public void DeletePunishmentType(PunishmentType punishmentType)
+		{
+			_conn.Delete(punishmentType);
+		}
 	}
 }

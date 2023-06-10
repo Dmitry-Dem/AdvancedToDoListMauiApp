@@ -15,5 +15,31 @@ namespace AdvancedToDoListMauiApp.Services
         {
             return _db.GetAllPunishments();
         }
-    }
+		public Punishment GetPunishmentById(int Id)
+		{
+			return _db.GetPunishmentById(Id);
+		}
+		public void AddNewPunishment(Punishment punishment)
+		{
+			_db.AddNewPunishment(punishment);
+		}
+		public void UpdatePunishment(Punishment punishment)
+		{
+			_db.UpdatePunishment(punishment);
+		}
+		public void DeletePunishment(Punishment punishment)
+		{
+			_db.DeletePunishment(punishment);
+		}
+		public Punishment DecreasePunishmentValueById(int Id)
+        {
+            var punish = _db.GetPunishmentById(Id);
+
+			punish.Value += (punish.ValueDecreaser < 0) ? punish.ValueDecreaser : punish.ValueDecreaser * -1;
+
+			_db.UpdatePunishment(punish);
+
+			return punish;
+        }
+	}
 }

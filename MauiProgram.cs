@@ -16,16 +16,6 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
-		/*
-		//var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-		//return Path.Combine(basePath, DatabaseFilename);
-
-		string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Data/DataBase.db");
-
-		builder.Services.AddSingleton(s =>
-		ActivatorUtilities.CreateInstance<ApplicationDb>(s, dbPath));*/
-
-
 
 #if DEBUG
 		builder.Logging.AddDebug();

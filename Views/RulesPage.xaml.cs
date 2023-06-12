@@ -47,7 +47,7 @@ public partial class RulesPage : ContentPage
 	{
 		_userRuleService.DeleteUserRule(userRule);
 
-		UpdateUserRulesCollection();
+		UserRules.Remove(userRule);
 	}
 	private void ViolatedRule(UserRule userRule)
 	{

@@ -11,7 +11,7 @@ public partial class PunishmentPage : ContentPage
 	private IPunishmentPointService _punishPointService = new PunishmentPointService();
 	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand OpenPunishmentCommand { get; }
-	public ObservableCollection<Punishment> Punishments { get; set; }
+	public ObservableCollection<Punishment> Punishments { get; set; } = new ObservableCollection<Punishment>();
 	public PunishmentPage()
 	{
 		InitializeComponent();
@@ -31,11 +31,6 @@ public partial class PunishmentPage : ContentPage
 	private void UpdatePunishmentCollection()
 	{
 		var punishList = _punishmentService.GetAllPunishments();
-
-		if (Punishments == null)
-		{
-			Punishments = new ObservableCollection<Punishment>();
-		}
 
 		Punishments.Clear();
 

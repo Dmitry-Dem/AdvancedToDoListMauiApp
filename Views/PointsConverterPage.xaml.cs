@@ -80,7 +80,7 @@ public partial class PointsConverterPage : ContentPage
 	{
 		_punishmentTypeService.DeletePunishmentType(punishmentType);
 
-		UpdatePunishmentTypesCollection();
+		PunishmentTypes.Remove(punishmentType);
 	}
 	private void UpdatePunishmentType(PunishmentType punishmentType)
 	{

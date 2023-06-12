@@ -4,12 +4,13 @@
              xmlns:local="clr-namespace:AdvancedToDoListMauiApp.Views"
              x:Class="AdvancedToDoListMauiApp.Views.PointsConverterPage"
              BackgroundColor="Black">
-    
-    
-    <Grid RowDefinitions=".1*, .15*, .65*, .1*" Margin="20">
-        <!--Back Button and Punishment Points-->
-        <Grid RowDefinitions="*, *">
-            <ImageButton 
+
+    <Grid x:Name="wrapper">
+        <!--Main Content-->
+        <Grid RowDefinitions=".1*, .15*, .65*, .1*" Margin="20">
+            <!--Back Button and Punishment Points-->
+            <Grid RowDefinitions="*, *">
+                <ImageButton 
                 x:Name="ButtonBack"
                 Source="left_arrow_qwertyuiop.png"
                 HorizontalOptions="Start"
@@ -17,7 +18,7 @@
                 HeightRequest="30"
                 Clicked="ButtonBack_Clicked"/>
 
-            <Border
+                <Border
                 BackgroundColor="White"
                 StrokeShape="RoundRectangle 80,80,80,80"
                 HeightRequest="30"
@@ -26,12 +27,12 @@
                 HorizontalOptions="End"
                 Grid.Column="1">
 
-                <Grid ColumnDefinitions="*, *, *, *">
-                    <Image
+                    <Grid ColumnDefinitions="*, *, *, *">
+                        <Image
                         Source="coin_black"
                         Margin="2, 0, 0, 0"/>
 
-                    <Label
+                        <Label
                         x:Name="LabelPunishmentPoints"
                         Text="1"
                         TextColor="Black"
@@ -41,13 +42,13 @@
                         VerticalTextAlignment="Center"
                         Grid.Column="1"
                         Grid.ColumnSpan="3"/>
-                </Grid>
-            </Border>
-        </Grid>
-        
-        <!--Punishment List Title-->
-        <VerticalStackLayout Grid.Row="1">
-            <Label
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!--Punishment List Title-->
+            <VerticalStackLayout Grid.Row="1">
+                <Label
                 Text="Punisment Type List:"
                 TextColor="White"
                 FontSize="24"
@@ -56,148 +57,122 @@
                 Grid.Row="0"
                 Grid.ColumnSpan="3"/>
 
-            <Rectangle Fill="Gray"/>
-        </VerticalStackLayout>
+                <Rectangle Fill="Gray"/>
+            </VerticalStackLayout>
 
-        <Grid Grid.Row="1" VerticalOptions="End" ColumnDefinitions=".39*, .145*, .145*, .145*, .145*" Margin="10">
-            <Label
-                Text="Description"
-                FontSize="Small"
-                VerticalTextAlignment="Center"
-                HorizontalTextAlignment="Center"
-                Grid.Column="0"/>
+            <Grid Grid.Row="1" VerticalOptions="End" ColumnDefinitions="*, *, *, *, *, *" Margin="10">
+                <Label
+                    Text="Name"
+                    FontSize="Small"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Grid.Column="0"/>
 
-            <Label
-                Text="Number"
-                FontSize="Small"
-                VerticalTextAlignment="Center"
-                HorizontalTextAlignment="Center"
-                Grid.Column="1"/>
+                <Label
+                    Text="Number"
+                    FontSize="Small"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Grid.Column="1"/>
 
-            <Image
-                HeightRequest="20"
-                WidthRequest="20"
-                Source="coin_white.png"
-                Grid.Column="2"/>
+                <Image
+                    HeightRequest="20"
+                    WidthRequest="20"
+                    Source="coin_white.png"
+                    Grid.Column="2"/>
 
-            <Label
-                Text="Delete"
-                FontSize="Small"
-                VerticalTextAlignment="Center"
-                HorizontalTextAlignment="Center"
-                Grid.Column="3"/>
+                <Label
+                    Text="Update"
+                    FontSize="Small"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Grid.Column="3"/>
+                
+                <Label
+                    Text="Delete"
+                    FontSize="Small"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Grid.Column="4"/>
 
-            <Label
-                Text="Convert"
-                FontSize="Small"
-                VerticalTextAlignment="Center"
-                HorizontalTextAlignment="End"
-                Grid.Column="4"/>
-        </Grid>
-        
-        <!--Punishment List-->
-        <CollectionView
-            x:Name="PunishmentTypesCollectionView"
-            Grid.Row="2"
-            Grid.RowSpan="2"
-            ItemsSource="{Binding PunishmentTypes}"
-            VerticalOptions="Start">
+                <Label
+                    Text="Convert"
+                    FontSize="Small"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Grid.Column="5"/>
+            </Grid>
 
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout ItemSpacing="10" Orientation="Vertical"/>
-            </CollectionView.ItemsLayout>
+            <!--Punishment List-->
+            <CollectionView
+                x:Name="PunishmentTypesCollectionView"
+                Grid.Row="2"
+                Grid.RowSpan="2"
+                ItemsSource="{Binding PunishmentTypes}"
+                VerticalOptions="Start">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border
-                        StrokeShape="RoundRectangle 10,10,10,10">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" Orientation="Vertical"/>
+                </CollectionView.ItemsLayout>
 
-                        <Grid ColumnDefinitions=".4*, .15*, .15*, .15*, .15*" Margin="5">
-                            
-                            <Entry
-                                Text="{Binding Description}"
-                                Grid.Column="0"/>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            StrokeShape="RoundRectangle 10,10,10,10">
 
-                            <Entry
-                                Text="{Binding Value}"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"
-                                Grid.Column="1"/>
-
-                            <Entry
-                                Text="{Binding PunishmentPoint}"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"
-                                Grid.Column="2"/>
-
-                            <ImageButton
-                                Source="minus_qwertyuiop.png"
-                                WidthRequest="25"
-                                HeightRequest="25"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.DeletePunishmentTypeCommand}"
-                                CommandParameter="{Binding .}"
-                                Grid.Column="3"/>
-
-                            <ImageButton
-                                Source="convert_qwertyuiop.png"
-                                WidthRequest="25"
-                                HeightRequest="25"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.ConvertPunishmentTypeCommand}"
-                                CommandParameter="{Binding .}"
-                                Grid.Column="4"/>
-                        </Grid>
-                        <!--<Grid ColumnDefinitions=".5*, .1*, .3*, .1*" Padding="10">
-                            <Label
-                                Text="{Binding Description}"
-                                TextColor="White"
-                                VerticalTextAlignment="Center"
-                                Grid.Column="0"/>
-
-                            <Grid Grid.Column="1" Grid.ColumnSpan="3" ColumnDefinitions=".5*, .25*, .25*">
+                            <Grid ColumnDefinitions="*, *, *, *, *, *" Margin="5">
 
                                 <Label
-                                    x:Name="LabelPunishmentValue"
-                                    Text="{Binding Value}"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    TextColor="#C32727"
-                                    HorizontalTextAlignment="Center"
+                                    Text="{Binding Description}"
+                                    MinimumHeightRequest="30"
+                                    MaximumHeightRequest="100"
                                     VerticalTextAlignment="Center"
-                                    MinimumHeightRequest="50"
-                                    MaximumWidthRequest="70"
+                                    HorizontalTextAlignment="Center"
                                     Grid.Column="0"/>
 
-                                <Entry
-                                    x:Name="EntryPunishmentValueDecreaser"
-                                    Text="{Binding ValueDecreaser}"
-                                    HeightRequest="40"
-                                    MinimumWidthRequest="40"
-                                    MaximumWidthRequest="50"
-                                    HorizontalTextAlignment="Center"
+                                <Label
+                                    Text="{Binding Value}"
                                     VerticalTextAlignment="Center"
-                                    HorizontalOptions="Start"
+                                    HorizontalTextAlignment="Center"
                                     Grid.Column="1"/>
 
-                                <ImageButton
-                                    x:Name="ButtonDecreasePunishmentValue"
-                                    Source="minus_qwertyuiop.png"
-                                    HeightRequest="27"
-                                    WidthRequest="27"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="End"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.OpenPunishmentTypeCommand}"
-                                    CommandParameter="{Binding .}"
+                                <Label
+                                    Text="{Binding PunishmentPoint}"
+                                    VerticalTextAlignment="Center"
+                                    HorizontalTextAlignment="Center"
                                     Grid.Column="2"/>
 
-                            </Grid>
-                        </Grid>-->
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                <ImageButton
+                                    Source="update_qwertyuiop.png"
+                                    WidthRequest="25"
+                                    HeightRequest="25"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.UpdatePunishmentTypeCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Grid.Column="3"/>
 
-        <!--Add new record Button-->
-        <ImageButton
+                                <ImageButton
+                                    Source="minus_qwertyuiop.png"
+                                    WidthRequest="25"
+                                    HeightRequest="25"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.DeletePunishmentTypeCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Grid.Column="4"/>
+
+                                <ImageButton
+                                    Source="convert_qwertyuiop.png"
+                                    WidthRequest="25"
+                                    HeightRequest="25"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:PointsConverterPage}}, Path=BindingContext.ConvertPunishmentTypeCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Grid.Column="5"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!--Add new record Button-->
+            <ImageButton
             x:Name="ButtonAddNewPunishmentType"
             Clicked="ButtonAddNewPunishmentType_Clicked"
             Source="plus_qwertyuiop.png"
@@ -205,6 +180,180 @@
             WidthRequest="50"
             HorizontalOptions="End"
             Grid.Row="3"/>
+        </Grid>
+
+        <!--Add new Rule or Update Rule Panel-->
+        <Grid 
+            x:Name="PanelPunishmenType"
+            IsVisible="false">
+
+            <!--Panel Backgraund Shadow-->
+            <Border 
+                x:Name="BorderPanelBackground"
+                BackgroundColor="Black"
+                Opacity="0.85"
+                Stroke="transparent">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapBorderClosePanelButton_Tapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!--Panel Content-->
+            <Border 
+                BackgroundColor="Black"
+                Stroke="White"
+                WidthRequest="250"
+                HeightRequest="200"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 10, 10, 10 ,10"
+                Padding="15">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Border.GestureRecognizers>
+
+                <Grid 
+                    ColumnDefinitions="*, *, *"
+                    RowDefinitions=".25*, .05*, .35*, .35*">
+
+                    <Label
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="Rule Name"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+
+                    <Label
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Text="Repetition"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+
+                    <Image
+                        Source="coin_white.png"
+                        WidthRequest="20"
+                        HeightRequest="20"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        Grid.Column="2"
+                        Grid.Row="0"/>
+
+                    <Rectangle
+                    HeightRequest="1"
+                    BackgroundColor="Gray"
+                    VerticalOptions="Start"
+                    Grid.ColumnSpan="3"
+                    Grid.Row="1"/>
+
+                    <!--Panel Entryes-->
+                    <Grid
+                        ColumnDefinitions="*, *, *"
+                        Grid.ColumnSpan="3"
+                        Grid.Row="2">
+
+                        <Label
+                            x:Name="PanelLabelPunishmentTypeId"
+                            IsVisible="false"/>
+
+                        <Border
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Entry
+                                x:Name="EntryPunishmentTypeName"
+                                Placeholder="Name"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+                            
+                        </Border>
+
+                        <Border
+                               Margin="5, 0"
+                               HeightRequest="40"
+                               StrokeShape="RoundRectangle 5, 5, 5, 5"
+                               Grid.Column="1">
+
+                            <Entry
+                                   x:Name="EntryPunishmentTypeValue"
+                                   Placeholder="Value"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+                        
+                        <Border
+                               Margin="5, 0"
+                               HeightRequest="40"
+                               StrokeShape="RoundRectangle 5, 5, 5, 5"
+                               Grid.Column="2">
+
+                               <Entry
+                                   x:Name="EntryPunishmentTypePoint"
+                                   Placeholder="Cost"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+                    </Grid>
+
+                    <!--Panel Buttons-->
+                    <Grid
+                        ColumnDefinitions="*, *"
+                        Grid.ColumnSpan="3"
+                        Grid.Row="3">
+
+                        <Border
+                            x:Name="BorderClosePanelButton"
+                            StrokeThickness="1.7"
+                            Stroke="#450000"
+                            BackgroundColor="#C32727"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapBorderClosePanelButton_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Cancel"
+                                TextColor="#450000"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+
+                        </Border>
+
+                        <Border
+                            x:Name="BorderSavePanelDataButton"
+                            StrokeThickness="1.7"
+                            Stroke="#295700"
+                            BackgroundColor="#3EA201"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="1">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapBorderSavePanelDataButton_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Save"
+                                TextColor="#295700"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
-    
 </ContentPage>

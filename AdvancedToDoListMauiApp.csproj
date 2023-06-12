@@ -54,6 +54,7 @@
 	  <None Remove="Resources\Images\coin_black.png" />
 	  <None Remove="Resources\Images\coin_white.png" />
 	  <None Remove="Resources\Images\convert_qwertyuiop.png" />
+	  <None Remove="Resources\Images\danger_qwertyuiop.png" />
 	  <None Remove="Resources\Images\left_arrow_qwertyuiop.png" />
 	  <None Remove="Resources\Images\minus_qwertyuiop.png" />
 	  <None Remove="Resources\Images\notes_qwertyuiop.png" />
@@ -61,6 +62,7 @@
 	  <None Remove="Resources\Images\plus_qwertyuiop.png" />
 	  <None Remove="Resources\Images\swords_qwertyuiop.png" />
 	  <None Remove="Resources\Images\to_do_qwertyuiop.png" />
+	  <None Remove="Resources\Images\update_qwertyuiop.png" />
 	</ItemGroup>
 
 	<ItemGroup>

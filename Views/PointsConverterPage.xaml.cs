@@ -13,14 +13,16 @@ public partial class PointsConverterPage : ContentPage
 	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand DeletePunishmentTypeCommand { get; }
 	public ICommand ConvertPunishmentTypeCommand { get; }
-	public ObservableCollection<PunishmentType> PunishmentTypes { get; set; }
+	public ICommand UpdatePunishmentTypeCommand { get; }
+	public ObservableCollection<PunishmentType> PunishmentTypes { get; set; } = new ObservableCollection<PunishmentType>();
 	public PointsConverterPage()
 	{
 		InitializeComponent();
-		UpdateCollection();
+		UpdatePunishmentTypesCollection();
 
 		DeletePunishmentTypeCommand = new Command<PunishmentType>(DeletePunishmentType);
 		ConvertPunishmentTypeCommand = new Command<PunishmentType>(ConvertPunishmentPointsToPunishment);
+		UpdatePunishmentTypeCommand = new Command<PunishmentType>(UpdatePunishmentType);
 
 		BindingContext = this;
 	}
@@ -78,16 +80,20 @@ public partial class PointsConverterPage : ContentPage
 	{
 		_punishmentTypeService.DeletePunishmentType(punishmentType);
 
-		UpdateCollection();
+		UpdatePunishmentTypesCollection();
 	}
-	private void UpdateCollection()
+	private void UpdatePunishmentType(PunishmentType punishmentType)
+	{
+		PanelLabelPunishmentTypeId.Text = punishmentType.Id.ToString();
+		EntryPunishmentTypeName.Text = punishmentType.Description;
+		EntryPunishmentTypeValue.Text = punishmentType.Value.ToString();
+		EntryPunishmentTypePoint.Text = punishmentType.PunishmentPoint.ToString();
+
+		PanelPunishmenType.IsVisible = true;
+	}
+	private void UpdatePunishmentTypesCollection()
 	{
 		var punishTypesList = _punishmentTypeService.GetAllPunishmentTypes();
-
-		if (PunishmentTypes == null)
-		{
-			PunishmentTypes = new ObservableCollection<PunishmentType>();
-		}
 
 		PunishmentTypes.Clear();
 
@@ -102,15 +108,90 @@ public partial class PointsConverterPage : ContentPage
 	}
 	private void ButtonAddNewPunishmentType_Clicked(object sender, EventArgs e)
 	{
-		var newPunishmentType = new PunishmentType
+		//open panel to add new punType
+
+		PanelPunishmenType.IsVisible = true;
+
+		//var newPunishmentType = new PunishmentType
+		//{
+		//	Description = "",
+		//	Value = 0,
+		//	PunishmentPoint = 1
+		//};
+
+		//_punishmentTypeService.AddNewPunishmentType(newPunishmentType);
+	}
+	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
+	{
+		ClosePunishmentTypePanel();
+	}
+	private void TapBorderSavePanelDataButton_Tapped(object sender, TappedEventArgs e)
+	{
+		if (IsPanelPunishmentTypeDataValid(EntryPunishmentTypeName.Text, EntryPunishmentTypeValue.Text, EntryPunishmentTypePoint.Text))
 		{
-			Description = "",
-			Value = 0,
-			PunishmentPoint = 1
-		};
+			//check if we shoud add new PunishType or update existed
+			bool punishmentType = !string.IsNullOrEmpty(PanelLabelPunishmentTypeId.Text);
 
-		_punishmentTypeService.AddNewPunishmentType(newPunishmentType);
+			if (punishmentType)  //update PunishType
+			{
+				int punishTypeId = int.Parse(PanelLabelPunishmentTypeId.Text);
 
-		UpdateCollection();
+				var punishType = _punishmentTypeService.GetPunishmentTypeById(punishTypeId);
+
+				punishType.Description = EntryPunishmentTypeName.Text;
+				punishType.Value = int.Parse(EntryPunishmentTypeValue.Text);
+				punishType.PunishmentPoint = int.Parse(EntryPunishmentTypePoint.Text);
+
+				_punishmentTypeService.UpdatePunishmentType(punishType);
+			}
+			else  //create and add new PunishType
+			{
+				var newPunishType = new PunishmentType()
+				{
+					Description = EntryPunishmentTypeName.Text,
+					Value = int.Parse(EntryPunishmentTypeValue.Text),
+					PunishmentPoint = int.Parse(EntryPunishmentTypePoint.Text)
+				};
+
+				_punishmentTypeService.AddNewPunishmentType(newPunishType);
+			}
+			//close panel
+			ClosePunishmentTypePanel();
+
+			//update Collection of rules:
+			UpdatePunishmentTypesCollection();
+		}
+
+	}
+	private bool IsPanelPunishmentTypeDataValid(string description,  string value, string pp)
+	{
+		if (!string.IsNullOrEmpty(description) && !string.IsNullOrEmpty(pp) && !string.IsNullOrEmpty(value))
+		{
+			try
+			{
+				int punishmentPoint = int.Parse(pp);
+				int _value = int.Parse(value);
+
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		return false;
+	}
+	private void ClosePunishmentTypePanel()
+	{
+		PanelPunishmenType.IsVisible = false;
+		PanelLabelPunishmentTypeId.Text = string.Empty;
+		EntryPunishmentTypeName.Text = string.Empty;
+		EntryPunishmentTypeValue.Text = string.Empty;
+		EntryPunishmentTypePoint.Text = string.Empty;
+	}
+	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+	{
+
 	}
 }

@@ -17,6 +17,7 @@ namespace AdvancedToDoListMauiApp.Data
             _conn.CreateTable<Punishment>();
             _conn.CreateTable<PunishmentPoint>();
             _conn.CreateTable<PunishmentType>();
+            _conn.CreateTable<UserRule>();
             _conn.CreateTable<UserTask>();
         }
         //Punishment methods
@@ -77,6 +78,29 @@ namespace AdvancedToDoListMauiApp.Data
 		public void DeletePunishmentType(PunishmentType punishmentType)
 		{
 			_conn.Delete(punishmentType);
+		}
+		//User Rules methods
+		public List<UserRule> GetAllUserRules()
+		{
+			return _conn.Table<UserRule>().ToList();
+		}
+		public UserRule GetUserRuleById(int Id)
+		{
+			var userRulesList = GetAllUserRules();
+
+			return userRulesList.FirstOrDefault(r => r.Id == Id);
+		}
+		public void AddNewUserRule(UserRule userRule)
+		{
+			_conn.Insert(userRule);
+		}
+		public void UpdateUserRule(UserRule userRule)
+		{
+			_conn.Update(userRule);
+		}
+		public void DeleteUserRule(UserRule userRule)
+		{
+			_conn.Delete(userRule);
 		}
 	}
 }

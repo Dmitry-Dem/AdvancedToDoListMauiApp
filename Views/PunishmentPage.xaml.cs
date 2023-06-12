@@ -8,8 +8,8 @@ namespace AdvancedToDoListMauiApp.Views;
 
 public partial class PunishmentPage : ContentPage
 {
-	private IPunishmentPointService punishPointService = new PunishmentPointService();
-	private IPunishmentService punishmentService = new PunishmentService();
+	private IPunishmentPointService _punishPointService = new PunishmentPointService();
+	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand OpenPunishmentCommand { get; }
 	public ObservableCollection<Punishment> Punishments { get; set; }
 	public PunishmentPage()
@@ -24,13 +24,13 @@ public partial class PunishmentPage : ContentPage
 
 		BindingContext = this;
 
-		LabelPunishmentPoints.Text = punishPointService.GetPointValue().ToString();
+		LabelPunishmentPoints.Text = _punishPointService.GetPointValue().ToString();
 
 		base.OnAppearing();
 	}
 	private void UpdatePunishmentCollection()
 	{
-		var punishList = punishmentService.GetAllPunishments();
+		var punishList = _punishmentService.GetAllPunishments();
 
 		if (Punishments == null)
 		{
@@ -58,20 +58,20 @@ public partial class PunishmentPage : ContentPage
 	}
 	private void DecreasePunishmentValue(Punishment punishment)
 	{
-		var dbPunishment = punishmentService.GetPunishmentById(punishment.Id);
+		var dbPunishment = _punishmentService.GetPunishmentById(punishment.Id);
 
 		if (punishment.ValueDecreaser != dbPunishment.ValueDecreaser)
 		{
 			dbPunishment.ValueDecreaser = punishment.ValueDecreaser;
 
-			punishmentService.UpdatePunishment(dbPunishment);
+			_punishmentService.UpdatePunishment(dbPunishment);
 		}
 
-		var updatedPunishment = punishmentService.DecreasePunishmentValueById(punishment.Id);
+		var updatedPunishment = _punishmentService.DecreasePunishmentValueById(punishment.Id);
 
 		if (updatedPunishment.Value <= 0)
 		{
-			punishmentService.DeletePunishment(updatedPunishment);
+			_punishmentService.DeletePunishment(updatedPunishment);
 		}
 
 		//update observable collection

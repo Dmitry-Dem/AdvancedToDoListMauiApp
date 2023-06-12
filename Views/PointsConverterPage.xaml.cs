@@ -108,18 +108,7 @@ public partial class PointsConverterPage : ContentPage
 	}
 	private void ButtonAddNewPunishmentType_Clicked(object sender, EventArgs e)
 	{
-		//open panel to add new punType
-
 		PanelPunishmenType.IsVisible = true;
-
-		//var newPunishmentType = new PunishmentType
-		//{
-		//	Description = "",
-		//	Value = 0,
-		//	PunishmentPoint = 1
-		//};
-
-		//_punishmentTypeService.AddNewPunishmentType(newPunishmentType);
 	}
 	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
 	{
@@ -143,6 +132,19 @@ public partial class PointsConverterPage : ContentPage
 				punishType.PunishmentPoint = int.Parse(EntryPunishmentTypePoint.Text);
 
 				_punishmentTypeService.UpdatePunishmentType(punishType);
+
+				//update also punishment what is desplayed on another page:
+
+				var punishment = _punishmentService
+					.GetAllPunishments()
+					.FirstOrDefault(p => p.PunishmentTypeId == punishType.Id);
+
+				if (punishment != null)
+				{
+					punishment.Description = punishType.Description;
+
+					_punishmentService.UpdatePunishment(punishment);
+				}
 			}
 			else  //create and add new PunishType
 			{

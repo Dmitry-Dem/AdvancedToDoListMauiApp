@@ -8,7 +8,7 @@ namespace AdvancedToDoListMauiApp.Views;
 
 public partial class PunishmentPage : ContentPage
 {
-	private IPunishmentPointService _punishPointService = new PunishmentPointService();
+	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
 	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand OpenPunishmentCommand { get; }
 	public ObservableCollection<Punishment> Punishments { get; set; } = new ObservableCollection<Punishment>();
@@ -24,7 +24,7 @@ public partial class PunishmentPage : ContentPage
 
 		BindingContext = this;
 
-		LabelPunishmentPoints.Text = _punishPointService.GetPointValue().ToString();
+		UpdatePunishmentPointLabel();
 
 		base.OnAppearing();
 	}
@@ -38,6 +38,10 @@ public partial class PunishmentPage : ContentPage
 		{
 			Punishments.Add(punish);
 		}
+	}
+	private void UpdatePunishmentPointLabel()
+	{
+		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
 	private void BorderOpenPointsConverterPage_Tapped(object sender, TappedEventArgs e)
 	{

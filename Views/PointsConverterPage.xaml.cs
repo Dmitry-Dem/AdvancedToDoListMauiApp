@@ -28,14 +28,27 @@ public partial class PointsConverterPage : ContentPage
 	}
 	protected override void OnAppearing()
 	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+		UpdatePunishmentPointLabel();
 
 		base.OnAppearing();
 	}
+	private void UpdatePunishmentTypesCollection()
+	{
+		var punishTypesList = _punishmentTypeService.GetAllPunishmentTypes();
+
+		PunishmentTypes.Clear();
+
+		foreach (var punType in punishTypesList)
+		{
+			PunishmentTypes.Add(punType);
+		}
+	}
+	private void UpdatePunishmentPointLabel()
+	{
+		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+	}
 	public void ConvertPunishmentPointsToPunishment(PunishmentType punishmentType)
 	{
-		_punishmentTypeService.UpdatePunishmentType(punishmentType);
-
 		//convert data code:
 		var PunishPoint = _punishmentPointService.GetPointValue();
 
@@ -73,7 +86,7 @@ public partial class PointsConverterPage : ContentPage
 				_punishmentService.AddNewPunishment(newPunishment);
 			}
 
-			LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+			UpdatePunishmentPointLabel();
 		}
 	}
 	public void DeletePunishmentType(PunishmentType punishmentType)
@@ -90,17 +103,6 @@ public partial class PointsConverterPage : ContentPage
 		EntryPunishmentTypePoint.Text = punishmentType.PunishmentPoint.ToString();
 
 		PanelPunishmenType.IsVisible = true;
-	}
-	private void UpdatePunishmentTypesCollection()
-	{
-		var punishTypesList = _punishmentTypeService.GetAllPunishmentTypes();
-
-		PunishmentTypes.Clear();
-
-		foreach (var punType in punishTypesList)
-		{
-			PunishmentTypes.Add(punType);
-		}
 	}
 	private void ButtonBack_Clicked(object sender, EventArgs e)
 	{

@@ -43,6 +43,10 @@ public partial class RulesPage : ContentPage
 			UserRules.Add(rule);
 		}
 	}
+	private void UpdatePunishmentPointLabel()
+	{
+		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+	}
 	private void DeleteRule(UserRule userRule)
 	{
 		_userRuleService.DeleteUserRule(userRule);
@@ -77,10 +81,6 @@ public partial class RulesPage : ContentPage
 	private void ButtonAddNewRule_Clicked(object sender, EventArgs e)
 	{
 		RulePanel.IsVisible = true;
-	}
-	private void UpdatePunishmentPointLabel()
-	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
 	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
 	{

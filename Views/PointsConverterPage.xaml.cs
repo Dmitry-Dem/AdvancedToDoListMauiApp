@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using AdvancedToDoListMauiApp.Args;
 using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Models;
 using AdvancedToDoListMauiApp.Services;
@@ -8,43 +9,33 @@ namespace AdvancedToDoListMauiApp.Views;
 
 public partial class PointsConverterPage : ContentPage
 {
+	public ObservableCollection<PunishmentType> PunishmentTypes { get; set; } = new ObservableCollection<PunishmentType>();
+
+	private IPunishmentService _punishmentService = new PunishmentService();
 	private IPunishmentTypeService _punishmentTypeService = new PunishmentTypeService();
 	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
-	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand DeletePunishmentTypeCommand { get; }
-	public ICommand ConvertPunishmentTypeCommand { get; }
 	public ICommand UpdatePunishmentTypeCommand { get; }
-	public ObservableCollection<PunishmentType> PunishmentTypes { get; set; } = new ObservableCollection<PunishmentType>();
+	public ICommand ConvertPunishmentTypeCommand { get; }
 	public PointsConverterPage()
 	{
 		InitializeComponent();
+		UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", _punishmentPointService.GetPointValue()));
 
 		DeletePunishmentTypeCommand = new Command<PunishmentType>(DeletePunishmentType);
 		ConvertPunishmentTypeCommand = new Command<PunishmentType>(ConvertPunishmentPointsToPunishment);
 		UpdatePunishmentTypeCommand = new Command<PunishmentType>(UpdatePunishmentType);
 
 		Appearing += InitialCollectionCreation;
+		PunishmentPointService.PunishmentPointChanged += UpdatePunishmentPointLabel;
 	}
-	private async void InitialCollectionCreation(object sender, EventArgs e)
+	private void ClosePunishmentTypePanel()
 	{
-		BindingContext = this;
-
-		await Task.Delay(600);
-
-		var list = _punishmentTypeService.GetAllPunishmentTypes();
-
-		foreach (var item in list)
-		{
-			await Task.Delay(50);
-
-			PunishmentTypes.Add(item);
-		}
-	}
-	protected override void OnAppearing()
-	{
-		UpdatePunishmentPointLabel();
-
-		base.OnAppearing();
+		PanelPunishmenType.IsVisible = false;
+		PanelLabelPunishmentTypeId.Text = string.Empty;
+		EntryPunishmentTypeName.Text = string.Empty;
+		EntryPunishmentTypeValue.Text = string.Empty;
+		EntryPunishmentTypePoint.Text = string.Empty;
 	}
 	private void UpdatePunishmentTypesCollection()
 	{
@@ -57,9 +48,48 @@ public partial class PointsConverterPage : ContentPage
 			PunishmentTypes.Add(punType);
 		}
 	}
-	private void UpdatePunishmentPointLabel()
+	private void ButtonBack_Clicked(object sender, EventArgs e)
 	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+		Navigation.PopAsync();
+	}
+	public void DeletePunishmentType(PunishmentType punishmentType)
+	{
+		_punishmentTypeService.DeletePunishmentType(punishmentType);
+
+		PunishmentTypes.Remove(punishmentType);
+	}
+	private void UpdatePunishmentType(PunishmentType punishmentType)
+	{
+		PanelLabelPunishmentTypeId.Text = punishmentType.Id.ToString();
+		EntryPunishmentTypeName.Text = punishmentType.Description;
+		EntryPunishmentTypeValue.Text = punishmentType.Value.ToString();
+		EntryPunishmentTypePoint.Text = punishmentType.PunishmentPoint.ToString();
+
+		PanelPunishmenType.IsVisible = true;
+	}
+	private async void InitialCollectionCreation(object sender, EventArgs e)
+	{
+		PunishmentTypes.Clear();
+		BindingContext = this;
+
+		await Task.Delay(200);
+
+		var list = _punishmentTypeService.GetAllPunishmentTypes();
+
+		foreach (var item in list)
+		{
+			await Task.Delay(25);
+
+			PunishmentTypes.Add(item);
+		}
+	}
+	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+	{
+
+	}
+	private void ButtonAddNewPunishmentType_Clicked(object sender, EventArgs e)
+	{
+		PanelPunishmenType.IsVisible = true;
 	}
 	public void ConvertPunishmentPointsToPunishment(PunishmentType punishmentType)
 	{
@@ -71,9 +101,6 @@ public partial class PointsConverterPage : ContentPage
 		if (PunishPoint >= 0)
 		{
 			_punishmentPointService.AddValue(punishmentType.PunishmentPoint * -1);
-
-			var x = _punishmentService
-				.GetAllPunishments();
 
 			var dbPunishment = _punishmentService
 				.GetAllPunishments()
@@ -99,32 +126,7 @@ public partial class PointsConverterPage : ContentPage
 
 				_punishmentService.AddNewPunishment(newPunishment);
 			}
-
-			UpdatePunishmentPointLabel();
 		}
-	}
-	public void DeletePunishmentType(PunishmentType punishmentType)
-	{
-		_punishmentTypeService.DeletePunishmentType(punishmentType);
-
-		PunishmentTypes.Remove(punishmentType);
-	}
-	private void UpdatePunishmentType(PunishmentType punishmentType)
-	{
-		PanelLabelPunishmentTypeId.Text = punishmentType.Id.ToString();
-		EntryPunishmentTypeName.Text = punishmentType.Description;
-		EntryPunishmentTypeValue.Text = punishmentType.Value.ToString();
-		EntryPunishmentTypePoint.Text = punishmentType.PunishmentPoint.ToString();
-
-		PanelPunishmenType.IsVisible = true;
-	}
-	private void ButtonBack_Clicked(object sender, EventArgs e)
-	{
-		Navigation.PopAsync();
-	}
-	private void ButtonAddNewPunishmentType_Clicked(object sender, EventArgs e)
-	{
-		PanelPunishmenType.IsVisible = true;
 	}
 	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
 	{
@@ -200,16 +202,8 @@ public partial class PointsConverterPage : ContentPage
 
 		return false;
 	}
-	private void ClosePunishmentTypePanel()
+	private void UpdatePunishmentPointLabel(object sender, PunishmentPointValueChangedEventArgs e)
 	{
-		PanelPunishmenType.IsVisible = false;
-		PanelLabelPunishmentTypeId.Text = string.Empty;
-		EntryPunishmentTypeName.Text = string.Empty;
-		EntryPunishmentTypeValue.Text = string.Empty;
-		EntryPunishmentTypePoint.Text = string.Empty;
-	}
-	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-	{
-
+		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
 }

@@ -3,6 +3,7 @@ using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using AdvancedToDoListMauiApp.Args;
 
 namespace AdvancedToDoListMauiApp.Views;
 
@@ -18,12 +19,14 @@ public partial class RulesPage : ContentPage
 	public RulesPage()
 	{
 		InitializeComponent();
+		UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", _punishmentPointService.GetPointValue()));
 
 		DeleteRuleCommand = new Command<UserRule>(DeleteRule);
 		ViolatedRuleCommand = new Command<UserRule>(ViolatedRule);
 		UpdateRuleCommand = new Command<UserRule>(UpdateRule);
 
 		Appearing += InitialCollectionCreation;
+		PunishmentPointService.PunishmentPointChanged += UpdatePunishmentPointLabel;
 	}
 	private void CloseRulePanel()
 	{
@@ -37,7 +40,6 @@ public partial class RulesPage : ContentPage
 		base.OnAppearing();
 
 		CloseRulePanel();
-		UpdatePunishmentPointLabel();
 	}
 	private void UpdateUserRulesCollection()
 	{
@@ -50,7 +52,7 @@ public partial class RulesPage : ContentPage
 			UserRules.Add(rule);
 		}
 	}
-	private void UpdatePunishmentPointLabel()
+	private void UpdatePunishmentPointLabel(object sender, PunishmentPointValueChangedEventArgs e)
 	{
 		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
@@ -67,8 +69,6 @@ public partial class RulesPage : ContentPage
 		if (punishPoint >= 0)
 		{
 			_punishmentPointService.AddValue(punishPoint);
-
-			UpdatePunishmentPointLabel();
 		}
 	}
 	private void UpdateRule(UserRule userRule)
@@ -112,13 +112,13 @@ public partial class RulesPage : ContentPage
 		UserRules.Clear();
 		BindingContext = this;
 
-		await Task.Delay(600);
+		await Task.Delay(200);
 
 		var userRules = _userRuleService.GetAllUserRules();
 
 		foreach (var rule in userRules)
 		{
-			await Task.Delay(50);
+			await Task.Delay(25);
 
 			UserRules.Add(rule);
 		}

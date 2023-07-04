@@ -1,4 +1,5 @@
-﻿using AdvancedToDoListMauiApp.Data;
+﻿using AdvancedToDoListMauiApp.Args;
+using AdvancedToDoListMauiApp.Data;
 using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Models;
 using System;
@@ -11,6 +12,8 @@ namespace AdvancedToDoListMauiApp.Services
 {
     public class PunishmentPointService : IPunishmentPointService
 	{
+		public static event EventHandler<PunishmentPointValueChangedEventArgs> PunishmentPointChanged;
+		
 		private ApplicationDb _db = new ApplicationDb();
 		public int GetPointValue()
 		{
@@ -25,12 +28,14 @@ namespace AdvancedToDoListMauiApp.Services
 			punishPoint.Value += value;
 
 			_db.UpdatePunishmentPoint(punishPoint);
+
+			PunishmentPointValueChanged(new PunishmentPointValueChangedEventArgs("Value changed!", value));
 		}
 		private PunishmentPoint GetFirstInstanceOrCreateNew()
 		{
 			var PunishPoint = _db.GetAllPunishmentPoints().FirstOrDefault();
 
-			if (PunishPoint == null) // Create new PP
+			if (PunishPoint == null)
 			{
 				var newPunishPoint = new PunishmentPoint
 				{
@@ -44,5 +49,11 @@ namespace AdvancedToDoListMauiApp.Services
 
 			return PunishPoint;
 		}
-    }
+		private void PunishmentPointValueChanged(PunishmentPointValueChangedEventArgs e)
+		{
+			EventHandler<PunishmentPointValueChangedEventArgs> temp = Volatile.Read(ref PunishmentPointChanged);
+
+			if (temp != null) temp(this, e);
+		}
+	}
 }

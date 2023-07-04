@@ -1,8 +1,10 @@
-﻿namespace AdvancedToDoListMauiApp.Interfaces
+﻿using AdvancedToDoListMauiApp.Args;
+
+namespace AdvancedToDoListMauiApp.Interfaces
 {
     public interface IPunishmentPointService
     {
-        int GetPointValue();
+		int GetPointValue();
         void AddValue(int value);
-    }
+	}
 }

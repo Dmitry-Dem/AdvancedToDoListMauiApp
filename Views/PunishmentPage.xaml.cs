@@ -1,3 +1,4 @@
+using AdvancedToDoListMauiApp.Args;
 using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Models;
 using AdvancedToDoListMauiApp.Services;
@@ -16,15 +17,15 @@ public partial class PunishmentPage : ContentPage
 	public PunishmentPage()
 	{
 		InitializeComponent();
+		UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", _punishmentPointService.GetPointValue()));
 
 		OpenPunishmentCommand = new Command<Punishment>(DecreasePunishmentValue);
 
 		Appearing += InitialCollectionCreation;
+		PunishmentPointService.PunishmentPointChanged += UpdatePunishmentPointLabel;
 	}
 	protected override void OnAppearing()
 	{
-		UpdatePunishmentPointLabel();
-
 		base.OnAppearing();
 	}
 	private void UpdatePunishmentCollection()
@@ -37,10 +38,6 @@ public partial class PunishmentPage : ContentPage
 		{
 			Punishments.Add(punish);
 		}
-	}
-	private void UpdatePunishmentPointLabel()
-	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
 	private void DecreasePunishmentValue(Punishment punishment)
 	{
@@ -65,9 +62,10 @@ public partial class PunishmentPage : ContentPage
 	}
 	private async void InitialCollectionCreation(object sender, EventArgs e)
 	{
+		Punishments.Clear();
 		BindingContext = this;
 
-		await Task.Delay(400);
+		await Task.Delay(200);
 
 		var list = _punishmentService.GetAllPunishments();
 
@@ -89,5 +87,9 @@ public partial class PunishmentPage : ContentPage
 		NavigationPage.SetHasNavigationBar(newPage, false);
 
 		Navigation.PushAsync(newPage);
+	}
+	private void UpdatePunishmentPointLabel(object sender, PunishmentPointValueChangedEventArgs e)
+	{
+		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
 	}
 }

@@ -99,7 +99,7 @@
             <CollectionView
                 x:Name="RulesCollectionView"
                 Grid.Row="2"
-                Grid.RowSpan="2"
+                Grid.RowSpan="1"
                 ItemsSource="{Binding UserRules}"
                 VerticalOptions="Start">
 
@@ -118,7 +118,8 @@
                                 Text="{Binding Name}"
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"
-                                Grid.Column="0"/>
+                                    MaximumHeightRequest="60"
+                                    Grid.Column="0"/>
 
                                 <Label
                                 Text="{Binding PunishmentPoint}"

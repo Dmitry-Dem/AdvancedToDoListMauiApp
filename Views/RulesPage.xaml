@@ -97,11 +97,11 @@
 
             <!--Rule List-->
             <CollectionView
-            x:Name="RulesCollectionView"
-            Grid.Row="2"
-            Grid.RowSpan="2"
-            ItemsSource="{Binding UserRules}"
-            VerticalOptions="Start">
+                x:Name="RulesCollectionView"
+                Grid.Row="2"
+                Grid.RowSpan="2"
+                ItemsSource="{Binding UserRules}"
+                VerticalOptions="Start">
 
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout ItemSpacing="10" Orientation="Vertical"/>

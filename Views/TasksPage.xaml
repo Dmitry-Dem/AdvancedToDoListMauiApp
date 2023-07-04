@@ -2,11 +2,471 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AdvancedToDoListMauiApp.Views.TasksPage"
-             Title="TasksPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:local="clr-namespace:AdvancedToDoListMauiApp.Views">
+
+    <Grid 
+        x:Name="GridWarapper">
+
+        <!--Content-->
+        <Grid
+            x:Name="GridContent"
+            RowDefinitions=".12*, .06*, .12*, .6*, .1*"
+            Margin="0">
+
+            <!--Group buttons-->
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="*, *"
+                ColumnDefinitions=".45*, .1*, .45*"
+                VerticalOptions="Center"
+                Padding="10">
+
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    x:Name="BorderDeleteSelectedGroupButton"
+                    StrokeThickness="1"
+                    Stroke="#C32727"
+                    BackgroundColor="#000"
+                    HeightRequest="40"
+                    StrokeShape="RoundRectangle 25, 25, 25, 25">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="BorderDeleteSelectedGroupButto_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <Label
+                        FontSize="Medium"
+                        Text="Delete Group"
+                        TextColor="#C32727"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                </Border>
+
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    x:Name="BorderAddNewGroupButton"
+                    StrokeThickness="1.7"
+                    Stroke="transparent"
+                    BackgroundColor="#F7F7F7"
+                    HeightRequest="40"
+                    StrokeShape="RoundRectangle 25, 25, 25, 25">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="BorderAddNewGroupButton_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <Label
+                        FontSize="Medium"
+                        Text="Add New Group"
+                        TextColor="#000"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <!--Groups Title-->
+            <Grid
+                Grid.Row="1"
+                VerticalOptions="Center"
+                Margin="10, 0">
+                
+                <Label
+                    Text="Task groups:"
+                    FontSize="35"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Start"/>
+            </Grid>
+            
+            <!--Groups-->
+            <CollectionView
+                Grid.Row="2"
+                x:Name="CollectionViewGroups"
+                HeightRequest="50"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="Center"
+                Margin="10, 0, 2, 0"
+                ItemsSource="{Binding Groups}">
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            HeightRequest="40"
+                            VerticalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#f7f7f7"
+                                Stroke="transparent"
+                                StrokeShape="RoundRectangle 25, 25, 25, 25"
+                                ClassId="{Binding Id}">
+
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapSelectNewCurrentTaskGroup_Tapped"/>
+                                </Border.GestureRecognizers>
+
+                                <Label
+                                        Text="{Binding Name}"
+                                        TextColor="#000"
+                                        FontSize="15"
+                                        FontAttributes="Bold"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Center"
+                                        Margin="10, 0"/>
+                                
+                            </Border>
+
+                            
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+            <!--Task list-->
+
+            <Rectangle
+                Grid.Row="3"
+                HeightRequest="1"
+                Margin="10, 0"
+                BackgroundColor="Gray"
+                VerticalOptions="Start"/>
+
+            <CollectionView
+                Grid.Row="3"
+                Grid.RowSpan="2"
+                ItemsSource="{Binding Tasks}"
+                Margin="0, 20, 0, 0">
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="17" Orientation="Vertical"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            ColumnDefinitions=".1*, .8*, .1*"
+                            Margin="30, 0">
+
+                            <CheckBox
+                                Grid.Column="0"
+                                IsChecked="{Binding IsDone}">
+                                
+                                    <CheckBox.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnCheckBoxTapped" />
+                                    </CheckBox.GestureRecognizers>
+                            </CheckBox>
+
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding Description}"
+                                    FontSize="20"
+                                    VerticalOptions="Center"/>
+
+                                <ImageButton
+                                    Grid.Column="2"
+                                    HeightRequest="23"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:TasksPage}}, Path=BindingContext.DeleteTaskCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Source="minus_qwertyuiop.png"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+            <!--Add new Task button-->
+            <ImageButton
+                x:Name="ButtonAddNewTask"
+                Clicked="ButtonAddNewTask_Clicked"
+                Source="plus_qwertyuiop.png"
+                HeightRequest="50"
+                WidthRequest="50"
+                HorizontalOptions="End"
+                Margin="10"
+                Grid.Row="4"/>
+        </Grid>
+
+        <!--Panel Add new TaskGroup-->
+        <Grid 
+            x:Name="PanelAddNewTaskGroup"
+            IsVisible="false">
+
+            <!--Panel Backgraund Shadow-->
+            <Border 
+                x:Name="BorderPanelTaskGroupBackground"
+                BackgroundColor="Black"
+                Opacity="0.85"
+                Stroke="transparent">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapClosePanelTaskGroup_Tapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!--Panel Content-->
+            <Border 
+                BackgroundColor="Black"
+                Stroke="White"
+                WidthRequest="200"
+                HeightRequest="200"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 10, 10, 10 ,10"
+                Padding="15">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Border.GestureRecognizers>
+
+                <Grid 
+                    ColumnDefinitions="*"
+                    RowDefinitions=".25*, .05*, .35*, .35*">
+
+                    <Label
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="Group Name"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+
+                    <Rectangle
+                        HeightRequest="1"
+                        BackgroundColor="Gray"
+                        VerticalOptions="Start"
+                        Grid.Row="1"/>
+
+                    <!--Panel Entryes-->
+                    <Grid
+                        ColumnDefinitions="*"
+                        Grid.Row="2">
+
+                        <Border
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Entry
+                                x:Name="EntryTaskGroupName"
+                                Placeholder="Group Name"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+
+                        </Border>
+                    </Grid>
+
+                    <!--Panel Buttons-->
+                    <Grid
+                        ColumnDefinitions="*, *"
+                        Grid.ColumnSpan="3"
+                        Grid.Row="3">
+
+                        <Border
+                            x:Name="BorderClosePanelTaskGroupButton"
+                            StrokeThickness="1.7"
+                            Stroke="#450000"
+                            BackgroundColor="#C32727"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapClosePanelTaskGroup_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Cancel"
+                                TextColor="#450000"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+
+                        </Border>
+
+                        <Border
+                            x:Name="BorderSavePanelDataTaskGroupButton"
+                            StrokeThickness="1.7"
+                            Stroke="#295700"
+                            BackgroundColor="#3EA201"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="1">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapBorderSavePanelDataTaskGroupButton_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Save"
+                                TextColor="#295700"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+        
+        <!--Panel Add new UserTask-->
+        <Grid 
+            x:Name="PanelAddNewUserTask"
+            IsVisible="false">
+
+            <!--Panel Backgraund Shadow-->
+            <Border 
+                x:Name="BorderPanelBackground"
+                BackgroundColor="Black"
+                Opacity="0.85"
+                Stroke="transparent">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapBorderClosePanelButton_Tapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!--Panel Content-->
+            <Border 
+                BackgroundColor="Black"
+                Stroke="White"
+                WidthRequest="250"
+                HeightRequest="200"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 10, 10, 10 ,10"
+                Padding="15">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Border.GestureRecognizers>
+
+                <Grid 
+                    ColumnDefinitions="*, *"
+                    RowDefinitions=".25*, .05*, .35*, .35*">
+
+                    <Label
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="Task Name"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+
+                    <Image
+                        Source="coin_white.png"
+                        WidthRequest="20"
+                        HeightRequest="20"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        Grid.Column="1"
+                        Grid.Row="0"/>
+
+                    <Rectangle
+                        HeightRequest="1"
+                        BackgroundColor="Gray"
+                        VerticalOptions="Start"
+                        Grid.ColumnSpan="3"
+                        Grid.Row="1"/>
+
+                    <!--Panel Entryes-->
+                    <Grid
+                        ColumnDefinitions="*, *"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="2">
+
+                        <Border
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Entry
+                                x:Name="EntryUserTaskName"
+                                Placeholder="Name"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+
+                        </Border>
+
+                        <Border
+                               Margin="5, 0"
+                               HeightRequest="40"
+                               StrokeShape="RoundRectangle 5, 5, 5, 5"
+                               Grid.Column="1">
+
+                            <Entry
+                                x:Name="EntryPunishmentPoint"
+                                Placeholder="Violated Cost"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+                        </Border>
+                    </Grid>
+
+                    <!--Panel Buttons-->
+                    <Grid
+                        ColumnDefinitions="*, *"
+                        Grid.ColumnSpan="3"
+                        Grid.Row="3">
+
+                        <Border
+                            x:Name="BorderClosePanelButton"
+                            StrokeThickness="1.7"
+                            Stroke="#450000"
+                            BackgroundColor="#C32727"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="0">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapBorderClosePanelButton_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Cancel"
+                                TextColor="#450000"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+
+                        </Border>
+
+                        <Border
+                            x:Name="BorderSavePanelDataUserTaskButton"
+                            StrokeThickness="1.7"
+                            Stroke="#295700"
+                            BackgroundColor="#3EA201"
+                            Margin="5, 0"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 5, 5, 5, 5"
+                            Grid.Column="1">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapBorderSavePanelDataUserTaskButton_Tapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Label
+                                FontSize="Medium"
+                                Text="Save"
+                                TextColor="#295700"
+                                HorizontalTextAlignment="Center"
+                                VerticalTextAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+    
 </ContentPage>

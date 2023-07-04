@@ -6,7 +6,7 @@
              NavigationPage.HasNavigationBar="False"
              BackgroundColor="Black">
 
-    <Grid x:Name="MainGrid" RowDefinitions=".08*, .15*, .14*, .61*" Margin="25">
+    <Grid x:Name="MainGrid" RowDefinitions=".08*, .15*, .14*, .61*" Margin="20">
         <!--Page name and points-->
         <Grid ColumnDefinitions="*, *">
             <Label

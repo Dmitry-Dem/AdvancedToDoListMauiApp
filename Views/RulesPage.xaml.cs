@@ -8,22 +8,29 @@ namespace AdvancedToDoListMauiApp.Views;
 
 public partial class RulesPage : ContentPage
 {
-	private IUserRuleService _userRuleService = new UserRuleService();
-	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
 	public ObservableCollection<UserRule> UserRules { get; set; } = new ObservableCollection<UserRule>();
+
+	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
+	private IUserRuleService _userRuleService = new UserRuleService();
 	public ICommand DeleteRuleCommand { get; set; }
-	public ICommand ViolatedRuleCommand { get; set; }
 	public ICommand UpdateRuleCommand { get; set; }
+	public ICommand ViolatedRuleCommand { get; set; }
 	public RulesPage()
 	{
 		InitializeComponent();
-		UpdateUserRulesCollection();
 
 		DeleteRuleCommand = new Command<UserRule>(DeleteRule);
 		ViolatedRuleCommand = new Command<UserRule>(ViolatedRule);
 		UpdateRuleCommand = new Command<UserRule>(UpdateRule);
 
-		BindingContext = this;
+		Appearing += InitialCollectionCreation;
+	}
+	private void CloseRulePanel()
+	{
+		RulePanel.IsVisible = false;
+		PanelLabelRuleId.Text = string.Empty;
+		EntryRuleName.Text = string.Empty;
+		EntryPunishmentPoint.Text = string.Empty;
 	}
 	protected override void OnAppearing()
 	{
@@ -57,7 +64,7 @@ public partial class RulesPage : ContentPage
 	{
 		int punishPoint = userRule.PunishmentPoint;
 
-		if (punishPoint > 0)
+		if (punishPoint >= 0)
 		{
 			_punishmentPointService.AddValue(punishPoint);
 
@@ -78,9 +85,47 @@ public partial class RulesPage : ContentPage
 	{
 		Navigation.PopAsync();
     }
+	private bool IsPanelRuleDataValid(string ruleName, string pp)
+	{
+		if (!string.IsNullOrEmpty(ruleName) && !string.IsNullOrEmpty(pp))
+		{
+			try
+			{
+				int punishmentPoint = int.Parse(pp);
+
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		return false;
+	}
 	private void ButtonAddNewRule_Clicked(object sender, EventArgs e)
 	{
 		RulePanel.IsVisible = true;
+	}
+	private async void InitialCollectionCreation(object sender, EventArgs e)
+	{
+		UserRules.Clear();
+		BindingContext = this;
+
+		await Task.Delay(600);
+
+		var userRules = _userRuleService.GetAllUserRules();
+
+		foreach (var rule in userRules)
+		{
+			await Task.Delay(50);
+
+			UserRules.Add(rule);
+		}
+	}
+	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+	{
+		//this method don`t do enything
 	}
 	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
 	{
@@ -120,34 +165,5 @@ public partial class RulesPage : ContentPage
 			//update Collection of rules:
 			UpdateUserRulesCollection();
 		}
-	}
-	private bool IsPanelRuleDataValid(string ruleName, string pp)
-	{
-		if (!string.IsNullOrEmpty(ruleName) && !string.IsNullOrEmpty(pp))
-		{
-			try
-			{
-				int punishmentPoint = int.Parse(pp);
-
-				return true;
-			}
-			catch (Exception)
-			{
-				return false;
-			}
-		}
-
-		return false;
-	}
-	private void CloseRulePanel()
-	{
-		RulePanel.IsVisible = false;
-		PanelLabelRuleId.Text = string.Empty;
-		EntryRuleName.Text = string.Empty;
-		EntryPunishmentPoint.Text = string.Empty;
-	}
-	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-	{
-		//this method don`t do enything
 	}
 }

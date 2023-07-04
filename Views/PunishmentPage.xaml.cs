@@ -8,22 +8,21 @@ namespace AdvancedToDoListMauiApp.Views;
 
 public partial class PunishmentPage : ContentPage
 {
+	public ObservableCollection<Punishment> Punishments { get; set; } = new ObservableCollection<Punishment>();
+
 	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
 	private IPunishmentService _punishmentService = new PunishmentService();
 	public ICommand OpenPunishmentCommand { get; }
-	public ObservableCollection<Punishment> Punishments { get; set; } = new ObservableCollection<Punishment>();
 	public PunishmentPage()
 	{
 		InitializeComponent();
 
 		OpenPunishmentCommand = new Command<Punishment>(DecreasePunishmentValue);
+
+		Appearing += InitialCollectionCreation;
 	}
 	protected override void OnAppearing()
 	{
-		UpdatePunishmentCollection();
-
-		BindingContext = this;
-
 		UpdatePunishmentPointLabel();
 
 		base.OnAppearing();
@@ -42,18 +41,6 @@ public partial class PunishmentPage : ContentPage
 	private void UpdatePunishmentPointLabel()
 	{
 		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
-	}
-	private void BorderOpenPointsConverterPage_Tapped(object sender, TappedEventArgs e)
-	{
-		var newPage = new PointsConverterPage();
-
-		NavigationPage.SetHasNavigationBar(newPage, false);
-
-		Navigation.PushAsync(newPage);
-	}
-	private void BorderOpenRulesPage_Tapped(object sender, TappedEventArgs e)
-	{
-		Navigation.PushAsync(new RulesPage());
 	}
 	private void DecreasePunishmentValue(Punishment punishment)
 	{
@@ -75,5 +62,32 @@ public partial class PunishmentPage : ContentPage
 
 		//update observable collection
 		UpdatePunishmentCollection();
+	}
+	private async void InitialCollectionCreation(object sender, EventArgs e)
+	{
+		BindingContext = this;
+
+		await Task.Delay(400);
+
+		var list = _punishmentService.GetAllPunishments();
+
+		foreach (var item in list)
+		{
+			await Task.Delay(25);
+
+			Punishments.Add(item);
+		}
+	}
+	private void BorderOpenRulesPage_Tapped(object sender, TappedEventArgs e)
+	{
+		Navigation.PushAsync(new RulesPage());
+	}
+	private void BorderOpenPointsConverterPage_Tapped(object sender, TappedEventArgs e)
+	{
+		var newPage = new PointsConverterPage();
+
+		NavigationPage.SetHasNavigationBar(newPage, false);
+
+		Navigation.PushAsync(newPage);
 	}
 }

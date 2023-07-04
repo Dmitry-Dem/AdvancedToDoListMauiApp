@@ -18,13 +18,27 @@ public partial class PointsConverterPage : ContentPage
 	public PointsConverterPage()
 	{
 		InitializeComponent();
-		UpdatePunishmentTypesCollection();
 
 		DeletePunishmentTypeCommand = new Command<PunishmentType>(DeletePunishmentType);
 		ConvertPunishmentTypeCommand = new Command<PunishmentType>(ConvertPunishmentPointsToPunishment);
 		UpdatePunishmentTypeCommand = new Command<PunishmentType>(UpdatePunishmentType);
 
+		Appearing += InitialCollectionCreation;
+	}
+	private async void InitialCollectionCreation(object sender, EventArgs e)
+	{
 		BindingContext = this;
+
+		await Task.Delay(600);
+
+		var list = _punishmentTypeService.GetAllPunishmentTypes();
+
+		foreach (var item in list)
+		{
+			await Task.Delay(50);
+
+			PunishmentTypes.Add(item);
+		}
 	}
 	protected override void OnAppearing()
 	{
@@ -54,7 +68,7 @@ public partial class PointsConverterPage : ContentPage
 
 		PunishPoint -= punishmentType.PunishmentPoint;
 
-		if (PunishPoint > 0)
+		if (PunishPoint >= 0)
 		{
 			_punishmentPointService.AddValue(punishmentType.PunishmentPoint * -1);
 

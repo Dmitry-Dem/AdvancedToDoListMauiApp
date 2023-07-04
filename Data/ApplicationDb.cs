@@ -18,6 +18,7 @@ namespace AdvancedToDoListMauiApp.Data
             _conn.CreateTable<PunishmentPoint>();
             _conn.CreateTable<PunishmentType>();
             _conn.CreateTable<UserRule>();
+            _conn.CreateTable<TaskGroup>();
             _conn.CreateTable<UserTask>();
         }
         //Punishment methods
@@ -101,6 +102,62 @@ namespace AdvancedToDoListMauiApp.Data
 		public void DeleteUserRule(UserRule userRule)
 		{
 			_conn.Delete(userRule);
+		}
+		//Task Group methods
+		public List<TaskGroup> GetAllTaskGroups()
+		{
+			var taskGroups = _conn.Table<TaskGroup>()
+				.ToList();
+
+			foreach (var taskGroup in taskGroups)
+			{
+				taskGroup.Tasks = GetAllUserTasks()
+					.Where(ut => ut.TaskGroupId == taskGroup.Id)
+					.ToList();
+			}
+
+			return taskGroups;
+		}
+		public TaskGroup GetTaskGroupById(int Id)
+		{
+			var taskGroupList = GetAllTaskGroups();
+
+			return taskGroupList.FirstOrDefault(tg => tg.Id == Id);
+		}
+		public void AddNewTaskGroup(TaskGroup taskGroup)
+		{
+			_conn.Insert(taskGroup);
+		}
+		public void UpdateTaskGroup(TaskGroup taskGroup)
+		{
+			_conn.Update(taskGroup);
+		}
+		public void DeleteTaskGroup(TaskGroup taskGroup)
+		{
+			_conn.Delete(taskGroup);
+		}
+		//User Task methods
+		public List<UserTask> GetAllUserTasks()
+		{
+			return _conn.Table<UserTask>().ToList();
+		}
+		public UserTask GetUserTaskById(int Id)
+		{
+			var userTasksList = GetAllUserTasks();
+
+			return userTasksList.FirstOrDefault(u => u.Id == Id);
+		}
+		public void AddNewUserTask(UserTask userTask)
+		{
+			_conn.Insert(userTask);
+		}
+		public void UpdateUserTask(UserTask userTask)
+		{
+			_conn.Update(userTask);
+		}
+		public void DeleteUserTask(UserTask userTask)
+		{
+			_conn.Delete(userTask);
 		}
 	}
 }

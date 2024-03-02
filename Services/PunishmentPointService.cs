@@ -1,39 +1,37 @@
-﻿using AdvancedToDoListMauiApp.Args;
-using AdvancedToDoListMauiApp.Data;
-using AdvancedToDoListMauiApp.Interfaces;
+﻿using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AdvancedToDoListMauiApp.Args;
+using AdvancedToDoListMauiApp.Data;
 
 namespace AdvancedToDoListMauiApp.Services
 {
     public class PunishmentPointService : IPunishmentPointService
 	{
-		public static event EventHandler<PunishmentPointValueChangedEventArgs> PunishmentPointChanged;
+		public static event EventHandler<PunishmentPointValueChangedEventArgs> PunishmentPointChanged = default!;
 		
-		private ApplicationDb _db = new ApplicationDb();
-		public int GetPointValue()
+		private readonly ApplicationDb _db = new();
+		public async Task<int> GetPointValueAsync()
 		{
-			var PunishPoint = GetFirstInstanceOrCreateNew();
+			var PunishPoint = await GetFirstInstanceOrCreateNewAsync();
 
 			return PunishPoint.Value;
 		}
-		public void AddValue(int value)
+        public async Task<int> AddValueAsync(int value)
 		{
-			var punishPoint = GetFirstInstanceOrCreateNew();
+			var punishPoint = await GetFirstInstanceOrCreateNewAsync();
 
 			punishPoint.Value += value;
 
-			_db.UpdatePunishmentPoint(punishPoint);
+			var result = await _db.UpdateAsync(punishPoint);
 
-			PunishmentPointValueChanged(new PunishmentPointValueChangedEventArgs("Value changed!", value));
-		}
-		private PunishmentPoint GetFirstInstanceOrCreateNew()
+			if (result > 0)
+				PunishmentPointValueChanged(new PunishmentPointValueChangedEventArgs("Value changed!", punishPoint.Value, value));
+
+			return result;
+        }
+		private async Task<PunishmentPoint> GetFirstInstanceOrCreateNewAsync()
 		{
-			var PunishPoint = _db.GetAllPunishmentPoints().FirstOrDefault();
+			var PunishPoint = (await _db.GetAllAsync<PunishmentPoint>().ConfigureAwait(false)).FirstOrDefault();
 
 			if (PunishPoint == null)
 			{
@@ -42,7 +40,7 @@ namespace AdvancedToDoListMauiApp.Services
 					Value = 0
 				};
 
-				_db.AddNewPunishmentPoint(newPunishPoint);
+				await _db.AddAsync(newPunishPoint);
 
 				return newPunishPoint;
 			}
@@ -51,9 +49,9 @@ namespace AdvancedToDoListMauiApp.Services
 		}
 		private void PunishmentPointValueChanged(PunishmentPointValueChangedEventArgs e)
 		{
-			EventHandler<PunishmentPointValueChangedEventArgs> temp = Volatile.Read(ref PunishmentPointChanged);
+			var temp = Volatile.Read(ref PunishmentPointChanged);
 
-			if (temp != null) temp(this, e);
+            temp(this, e);
 		}
 	}
 }

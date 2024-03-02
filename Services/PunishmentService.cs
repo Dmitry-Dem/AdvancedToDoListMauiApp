@@ -1,45 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdvancedToDoListMauiApp.Data;
+﻿using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Models;
+using AdvancedToDoListMauiApp.Data;
 
 namespace AdvancedToDoListMauiApp.Services
 {
     class PunishmentService : IPunishmentService
 	{
-        private ApplicationDb _db = new ApplicationDb();
-        public List<Punishment> GetAllPunishments()
+		private readonly IPunishmentChangesService _punishmentChangesService = new PunishmentChangesService();
+
+        private readonly ApplicationDb _db = new();
+        public async Task<List<Punishment>> GetAllPunishmentsAsync()
         {
-            return _db.GetAllPunishments();
+            return await _db.GetAllAsync<Punishment>();
         }
-		public Punishment GetPunishmentById(int Id)
-		{
-			return _db.GetPunishmentById(Id);
-		}
-		public void AddNewPunishment(Punishment punishment)
-		{
-			_db.AddNewPunishment(punishment);
-		}
-		public void UpdatePunishment(Punishment punishment)
-		{
-			_db.UpdatePunishment(punishment);
-		}
-		public void DeletePunishment(Punishment punishment)
-		{
-			_db.DeletePunishment(punishment);
-		}
-		public Punishment DecreasePunishmentValueById(int Id)
+        public async Task<Punishment?> GetPunishmentByIdAsync(int Id)
         {
-            var punish = _db.GetPunishmentById(Id);
-
-			punish.Value += (punish.ValueDecreaser < 0) ? punish.ValueDecreaser : punish.ValueDecreaser * -1;
-
-			_db.UpdatePunishment(punish);
-
-			return punish;
+            return await _db.GetByIdAsync<Punishment>(Id);
         }
-	}
+        public async Task<Punishment?> GetPunishmentByTypeIdAsync(int Id)
+        {
+            var list = await GetAllPunishmentsAsync().ConfigureAwait(false);
+
+            return list.FirstOrDefault(p => p.PunishmentTypeId == Id);
+        }
+        public async Task<int> AddPunishmentAsync(Punishment item)
+        {
+            return await _db.AddAsync(item);
+        }
+        public async Task<int> UpdatePunishmentAsync(Punishment item)
+        {
+            return await _db.UpdateAsync(item);
+        }
+        public async Task<int> DeletePunishmentAsync(Punishment item)
+        {
+            return await _db.DeleteAsync(item);
+        }
+        public async Task<Punishment?> DecreasePunishmentValueByIdAsync(int Id)
+        {
+            var punish = await _db.GetByIdAsync<Punishment>(Id);
+
+            if (punish == null)
+                return default;
+
+            var value = (punish.ValueDecreaser < 0) ? punish.ValueDecreaser : punish.ValueDecreaser * -1;
+
+            punish.Value += value;
+
+            var change = new PunishmentChanges()
+            {
+                PunishmentId = punish.Id,
+                Value = value,
+                ValueIncreased = true
+            };
+
+            await _punishmentChangesService.AddPunishmentChangesAsync(change);
+
+            await _db.UpdateAsync(punish);
+
+            return punish;
+        }
+    }
 }

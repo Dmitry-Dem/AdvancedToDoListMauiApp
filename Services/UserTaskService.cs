@@ -1,36 +1,31 @@
-﻿using AdvancedToDoListMauiApp.Data;
-using AdvancedToDoListMauiApp.Interfaces;
+﻿using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AdvancedToDoListMauiApp.Data;
 
 namespace AdvancedToDoListMauiApp.Services
 {
     public class UserTaskService : IUserTaskService
     {
-		private ApplicationDb _db = new ApplicationDb();
-		public List<UserTask> GetAllUserTasks()
-		{
-			return _db.GetAllUserTasks();
-		}
-		public UserTask GetUserTaskById(int Id)
-		{
-			return _db.GetUserTaskById(Id);
-		}
-		public void AddNewUserTask(UserTask userTask)
-		{
-			_db.AddNewUserTask(userTask);
-		}
-		public void UpdateUserTask(UserTask userTask)
-		{
-			_db.UpdateUserTask(userTask);
-		}
-		public void DeleteUserTask(UserTask userTask)
-		{
-			_db.DeleteUserTask(userTask);
-		}
-	}
+		private readonly ApplicationDb _db = new();
+        public async Task<List<UserTask>> GetAllUserTasksAsync()
+        {
+            return await _db.GetAllAsync<UserTask>();
+        }
+        public async Task<UserTask?> GetUserTaskByIdAsync(int Id)
+        {
+            return await _db.GetByIdAsync<UserTask>(Id);
+        }
+        public async Task<int> AddUserTaskAsync(UserTask item)
+        {
+            return await _db.AddAsync(item);
+        }
+        public async Task<int> UpdateUserTaskAsync(UserTask item)
+        {
+            return await _db.UpdateAsync(item);
+        }
+        public async Task<int> DeleteUserTaskAsync(UserTask item)
+        {
+            return await _db.DeleteAsync(item);
+        }
+    }
 }

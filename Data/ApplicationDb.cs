@@ -5,159 +5,45 @@ namespace AdvancedToDoListMauiApp.Data
 {
 	public class ApplicationDb
 	{
-		private SQLiteConnection _conn;
+		private readonly SQLiteAsyncConnection _conn;
         public ApplicationDb()
         {
-			Init();
+            _conn = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+
+            Init();
         }
-        public void Init()
+        protected void Init()
         {
-            _conn = new SQLiteConnection(Constants.DatabasePath, Constants.Flags);
-
-            _conn.CreateTable<Punishment>();
-            _conn.CreateTable<PunishmentPoint>();
-            _conn.CreateTable<PunishmentType>();
-            _conn.CreateTable<UserRule>();
-            _conn.CreateTable<TaskGroup>();
-            _conn.CreateTable<UserTask>();
+            _conn.CreateTableAsync<Punishment>();
+            _conn.CreateTableAsync<PunishmentChanges>();
+            _conn.CreateTableAsync<PunishmentPoint>();
+            _conn.CreateTableAsync<PunishmentType>();
+            _conn.CreateTableAsync<UserRule>();
+            _conn.CreateTableAsync<TaskGroup>();
+            _conn.CreateTableAsync<UserTask>();
         }
-        //Punishment methods
-        public List<Punishment> GetAllPunishments()
+
+		public async Task<List<T>> GetAllAsync<T>() where T : BaseEntity, new()
 		{
-            return _conn.Table<Punishment>().ToList();
+			return await _conn.Table<T>().ToListAsync();
 		}
-        public Punishment GetPunishmentById(int Id)
+        public async Task<T?> GetByIdAsync<T>(int Id) where T : BaseEntity, new()
         {
-            var punishList = GetAllPunishments();
+            var list = await GetAllAsync<T>();
 
-            return punishList.FirstOrDefault(p => p.Id == Id);
+            return list.FirstOrDefault(p => p.Id == Id);
         }
-        public void AddNewPunishment(Punishment punishment)
+        public async Task<int> AddAsync<T>(T entity) where T : BaseEntity, new()
         {
-            _conn.Insert(punishment);
+            return await _conn.InsertAsync(entity);
         }
-        public void UpdatePunishment(Punishment punishment)
+        public async Task<int> UpdateAsync<T>(T entity) where T : BaseEntity, new()
         {
-            _conn.Update(punishment);
+            return await _conn.UpdateAsync(entity);
         }
-		public void DeletePunishment(Punishment punishment)
-		{
-			_conn.Delete(punishment);
-		}
-		//Punishment Point methods
-		public List<PunishmentPoint> GetAllPunishmentPoints()
-		{
-			return _conn.Table<PunishmentPoint>().ToList();
-		}
-		public void AddNewPunishmentPoint(PunishmentPoint punishmentPoint)
-		{
-			_conn.Insert(punishmentPoint);
-		}
-        public void UpdatePunishmentPoint(PunishmentPoint punishmentPoint)
+		public async Task<int> DeleteAsync<T>(T entity) where T : BaseEntity, new()
         {
-            _conn.Update(punishmentPoint);
-        }
-		//Punishment Types methods
-        public List<PunishmentType> GetAllPunishmentTypes()
-        {
-            return _conn.Table<PunishmentType>().ToList();
-        }
-		public PunishmentType GetPunishmentTypeById(int Id)
-		{
-			var punishTypesList = GetAllPunishmentTypes();
-
-			return punishTypesList.FirstOrDefault(pt => pt.Id == Id);
-		}
-		public void AddNewPunishmentType(PunishmentType punishmentType)
-		{
-			_conn.Insert(punishmentType);
-		}
-		public void UpdatePunishmentType(PunishmentType punishmentType)
-		{
-			_conn.Update(punishmentType);
-		}
-		public void DeletePunishmentType(PunishmentType punishmentType)
-		{
-			_conn.Delete(punishmentType);
-		}
-		//User Rules methods
-		public List<UserRule> GetAllUserRules()
-		{
-			return _conn.Table<UserRule>().ToList();
-		}
-		public UserRule GetUserRuleById(int Id)
-		{
-			var userRulesList = GetAllUserRules();
-
-			return userRulesList.FirstOrDefault(r => r.Id == Id);
-		}
-		public void AddNewUserRule(UserRule userRule)
-		{
-			_conn.Insert(userRule);
-		}
-		public void UpdateUserRule(UserRule userRule)
-		{
-			_conn.Update(userRule);
-		}
-		public void DeleteUserRule(UserRule userRule)
-		{
-			_conn.Delete(userRule);
-		}
-		//Task Group methods
-		public List<TaskGroup> GetAllTaskGroups()
-		{
-			var taskGroups = _conn.Table<TaskGroup>()
-				.ToList();
-
-			foreach (var taskGroup in taskGroups)
-			{
-				taskGroup.Tasks = GetAllUserTasks()
-					.Where(ut => ut.TaskGroupId == taskGroup.Id)
-					.ToList();
-			}
-
-			return taskGroups;
-		}
-		public TaskGroup GetTaskGroupById(int Id)
-		{
-			var taskGroupList = GetAllTaskGroups();
-
-			return taskGroupList.FirstOrDefault(tg => tg.Id == Id);
-		}
-		public void AddNewTaskGroup(TaskGroup taskGroup)
-		{
-			_conn.Insert(taskGroup);
-		}
-		public void UpdateTaskGroup(TaskGroup taskGroup)
-		{
-			_conn.Update(taskGroup);
-		}
-		public void DeleteTaskGroup(TaskGroup taskGroup)
-		{
-			_conn.Delete(taskGroup);
-		}
-		//User Task methods
-		public List<UserTask> GetAllUserTasks()
-		{
-			return _conn.Table<UserTask>().ToList();
-		}
-		public UserTask GetUserTaskById(int Id)
-		{
-			var userTasksList = GetAllUserTasks();
-
-			return userTasksList.FirstOrDefault(u => u.Id == Id);
-		}
-		public void AddNewUserTask(UserTask userTask)
-		{
-			_conn.Insert(userTask);
-		}
-		public void UpdateUserTask(UserTask userTask)
-		{
-			_conn.Update(userTask);
-		}
-		public void DeleteUserTask(UserTask userTask)
-		{
-			_conn.Delete(userTask);
+            return await _conn.DeleteAsync(entity);
 		}
 	}
 }

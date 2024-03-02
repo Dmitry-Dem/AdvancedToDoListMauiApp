@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 namespace AdvancedToDoListMauiApp.Models
 {
 	[Table("UserRules")]
-	public class UserRule
+	public class UserRule : BaseEntity
     {
-		[PrimaryKey, AutoIncrement, Column("Id")]
-		public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int PunishmentPoint { get; set; }
     }
 }

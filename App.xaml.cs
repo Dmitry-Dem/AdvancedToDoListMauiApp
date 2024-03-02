@@ -1,7 +1,4 @@
-﻿using AdvancedToDoListMauiApp.Data;
-using AdvancedToDoListMauiApp.Views;
-
-namespace AdvancedToDoListMauiApp;
+﻿namespace AdvancedToDoListMauiApp;
 
 public partial class App : Application
 {

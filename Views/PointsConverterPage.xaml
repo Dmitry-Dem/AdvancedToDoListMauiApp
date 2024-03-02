@@ -60,44 +60,44 @@
                 <Rectangle Fill="Gray"/>
             </VerticalStackLayout>
 
-            <Grid Grid.Row="1" VerticalOptions="End" ColumnDefinitions="*, *, *, *, *, *" Margin="10">
+            <Grid Grid.Row="1" VerticalOptions="End" ColumnDefinitions=".3*, .1*, .1*, .1*, .1*, .1*" Margin="10">
                 <Label
                     Text="Name"
-                    FontSize="Small"
+                    FontSize="12"
                     VerticalTextAlignment="Center"
                     HorizontalTextAlignment="Center"
                     Grid.Column="0"/>
 
                 <Label
-                    Text="Number"
-                    FontSize="Small"
+                    Text="Num"
+                    FontSize="12"
                     VerticalTextAlignment="Center"
                     HorizontalTextAlignment="Center"
                     Grid.Column="1"/>
 
                 <Image
-                    HeightRequest="20"
-                    WidthRequest="20"
+                    HeightRequest="15"
+                    WidthRequest="15"
                     Source="coin_white.png"
                     Grid.Column="2"/>
 
                 <Label
-                    Text="Update"
-                    FontSize="Small"
+                    Text="Edit"
+                    FontSize="12"
                     VerticalTextAlignment="Center"
                     HorizontalTextAlignment="Center"
                     Grid.Column="3"/>
                 
                 <Label
-                    Text="Delete"
-                    FontSize="Small"
+                    Text="Del"
+                    FontSize="12"
                     VerticalTextAlignment="Center"
                     HorizontalTextAlignment="Center"
                     Grid.Column="4"/>
 
                 <Label
                     Text="Convert"
-                    FontSize="Small"
+                    FontSize="12"
                     VerticalTextAlignment="Center"
                     HorizontalTextAlignment="Center"
                     Grid.Column="5"/>
@@ -107,7 +107,9 @@
             <CollectionView
                 x:Name="PunishmentTypesCollectionView"
                 Grid.Row="2"
-                Grid.RowSpan="2"
+                Grid.RowSpan="1"
+                IsGrouped="False"
+                ItemSizingStrategy="MeasureAllItems"
                 ItemsSource="{Binding PunishmentTypes}"
                 VerticalOptions="Start">
 
@@ -120,7 +122,7 @@
                         <Border
                             StrokeShape="RoundRectangle 10,10,10,10">
 
-                            <Grid ColumnDefinitions="*, *, *, *, *, *" Margin="5">
+                            <Grid ColumnDefinitions=".3*, .1*, .1*, .1*, .1*, .1*" Margin="5">
 
                                 <Label
                                     Text="{Binding Description}"

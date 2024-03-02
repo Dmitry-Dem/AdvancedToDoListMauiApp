@@ -1,5 +1,5 @@
+using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Models;
-using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -11,15 +11,14 @@ public partial class RulesPage : ContentPage
 {
 	public ObservableCollection<UserRule> UserRules { get; set; } = new ObservableCollection<UserRule>();
 
-	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
-	private IUserRuleService _userRuleService = new UserRuleService();
+	private readonly IPunishmentPointService _punishmentPointService = new PunishmentPointService();
+	private readonly IUserRuleService _userRuleService = new UserRuleService();
 	public ICommand DeleteRuleCommand { get; set; }
 	public ICommand UpdateRuleCommand { get; set; }
 	public ICommand ViolatedRuleCommand { get; set; }
 	public RulesPage()
 	{
 		InitializeComponent();
-		UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", _punishmentPointService.GetPointValue()));
 
 		DeleteRuleCommand = new Command<UserRule>(DeleteRule);
 		ViolatedRuleCommand = new Command<UserRule>(ViolatedRule);
@@ -35,15 +34,18 @@ public partial class RulesPage : ContentPage
 		EntryRuleName.Text = string.Empty;
 		EntryPunishmentPoint.Text = string.Empty;
 	}
-	protected override void OnAppearing()
+	protected override async void OnAppearing()
 	{
-		base.OnAppearing();
+		var value = await _punishmentPointService.GetPointValueAsync();
+
+        UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", value, 0));
+        base.OnAppearing();
 
 		CloseRulePanel();
 	}
-	private void UpdateUserRulesCollection()
+	private async Task UpdateUserRulesCollectionAsync()
 	{
-        var userRules = _userRuleService.GetAllUserRules();
+		var userRules = await _userRuleService.GetAllUserRulesAsync();
 
 		UserRules.Clear();
 
@@ -52,23 +54,24 @@ public partial class RulesPage : ContentPage
 			UserRules.Add(rule);
 		}
 	}
-	private void UpdatePunishmentPointLabel(object sender, PunishmentPointValueChangedEventArgs e)
+	private void UpdatePunishmentPointLabel(object? sender, PunishmentPointValueChangedEventArgs e)
 	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+		LabelPunishmentPoints.Text = e.Value.ToString();
 	}
-	private void DeleteRule(UserRule userRule)
+	private async void DeleteRule(UserRule userRule)
 	{
-		_userRuleService.DeleteUserRule(userRule);
+		var result = await _userRuleService.DeleteUserRuleAsync(userRule);
 
-		UserRules.Remove(userRule);
+		if(result > 0)
+			UserRules.Remove(userRule);
 	}
-	private void ViolatedRule(UserRule userRule)
+	private async void ViolatedRule(UserRule userRule)
 	{
 		int punishPoint = userRule.PunishmentPoint;
 
 		if (punishPoint >= 0)
 		{
-			_punishmentPointService.AddValue(punishPoint);
+			await _punishmentPointService.AddValueAsync(punishPoint);
 		}
 	}
 	private void UpdateRule(UserRule userRule)
@@ -85,7 +88,71 @@ public partial class RulesPage : ContentPage
 	{
 		Navigation.PopAsync();
     }
-	private bool IsPanelRuleDataValid(string ruleName, string pp)
+	private void ButtonAddNewRule_Clicked(object sender, EventArgs e)
+	{
+		RulePanel.IsVisible = true;
+	}
+	private async void InitialCollectionCreation(object? sender, EventArgs e)
+	{
+		UserRules.Clear();
+		BindingContext = this;
+
+		var userRules = await _userRuleService.GetAllUserRulesAsync();
+
+		foreach (var rule in userRules)
+			UserRules.Add(rule);
+	}
+	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+	{
+		//this method don`t do enything
+	}
+	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
+	{
+		CloseRulePanel();
+	}
+	private async void TapBorderSavePanelDataButton_Tapped(object sender, TappedEventArgs e)
+	{
+		if (!IsPanelRuleDataValid(EntryRuleName.Text, EntryPunishmentPoint.Text))
+			return;
+
+		bool ruleExist = !string.IsNullOrEmpty(PanelLabelRuleId.Text);
+
+		int result;
+
+		if (ruleExist) 
+		{
+			int ruleId = int.Parse(PanelLabelRuleId.Text);
+
+			var userRule = await _userRuleService.GetUserRuleByIdAsync(ruleId);
+
+			if (userRule == null)
+			{
+                CloseRulePanel();
+				return;
+            }
+
+			userRule.Name = EntryRuleName.Text;
+			userRule.PunishmentPoint = int.Parse(EntryPunishmentPoint.Text);
+
+			result = await _userRuleService.UpdateUserRuleAsync(userRule);
+		}
+		else
+		{
+			var newUserRule = new UserRule()
+			{
+				Name = EntryRuleName.Text,
+				PunishmentPoint = int.Parse(EntryPunishmentPoint.Text)
+			};
+
+			result = await _userRuleService.AddUserRuleAsync(newUserRule);
+		}
+
+		CloseRulePanel();
+
+		if (result > 0)
+			await UpdateUserRulesCollectionAsync();
+	}
+	private static bool IsPanelRuleDataValid(string ruleName, string pp)
 	{
 		if (!string.IsNullOrEmpty(ruleName) && !string.IsNullOrEmpty(pp))
 		{
@@ -102,68 +169,5 @@ public partial class RulesPage : ContentPage
 		}
 
 		return false;
-	}
-	private void ButtonAddNewRule_Clicked(object sender, EventArgs e)
-	{
-		RulePanel.IsVisible = true;
-	}
-	private async void InitialCollectionCreation(object sender, EventArgs e)
-	{
-		UserRules.Clear();
-		BindingContext = this;
-
-		await Task.Delay(200);
-
-		var userRules = _userRuleService.GetAllUserRules();
-
-		foreach (var rule in userRules)
-		{
-			await Task.Delay(25);
-
-			UserRules.Add(rule);
-		}
-	}
-	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-	{
-		//this method don`t do enything
-	}
-	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
-	{
-		CloseRulePanel();
-	}
-	private void TapBorderSavePanelDataButton_Tapped(object sender, TappedEventArgs e)
-	{
-		if (IsPanelRuleDataValid(EntryRuleName.Text, EntryPunishmentPoint.Text))
-		{
-			//check if we shoud add new rule or update existed
-			bool ruleExist = !string.IsNullOrEmpty(PanelLabelRuleId.Text);
-
-			if (ruleExist)  //update rule
-			{
-				int ruleId = int.Parse(PanelLabelRuleId.Text);
-
-				var userRule = _userRuleService.GetUserRuleById(ruleId);
-
-				userRule.Name = EntryRuleName.Text;
-				userRule.PunishmentPoint = int.Parse(EntryPunishmentPoint.Text);
-
-				_userRuleService.UpdateUserRule(userRule);
-			}
-			else  //create and add new rule
-			{
-				var newUserRule = new UserRule()
-				{
-					Name = EntryRuleName.Text,
-					PunishmentPoint = int.Parse(EntryPunishmentPoint.Text)
-				};
-
-				_userRuleService.AddNewUserRule(newUserRule);
-			}
-			//close panel
-			CloseRulePanel();
-
-			//update Collection of rules:
-			UpdateUserRulesCollection();
-		}
 	}
 }

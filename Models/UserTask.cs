@@ -4,11 +4,9 @@ using SQLiteNetExtensions.Attributes;
 namespace AdvancedToDoListMauiApp.Models
 {
 	[Table("UserTasks")]
-	public class UserTask
+	public class UserTask : BaseEntity
     {
-		[PrimaryKey, AutoIncrement, Column("Id")]
-		public int Id { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
         public bool IsDone { get; set; }
         public int PunishmentPoint { get; set; }
         [ForeignKey(typeof(TaskGroup))]

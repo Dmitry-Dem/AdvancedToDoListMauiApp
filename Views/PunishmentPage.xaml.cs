@@ -1,5 +1,5 @@
+using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Args;
-using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Models;
 using AdvancedToDoListMauiApp.Services;
 using System.Collections.ObjectModel;
@@ -11,70 +11,68 @@ public partial class PunishmentPage : ContentPage
 {
 	public ObservableCollection<Punishment> Punishments { get; set; } = new ObservableCollection<Punishment>();
 
-	private IPunishmentPointService _punishmentPointService = new PunishmentPointService();
-	private IPunishmentService _punishmentService = new PunishmentService();
-	public ICommand OpenPunishmentCommand { get; }
+	private readonly IPunishmentPointService _punishmentPointService = new PunishmentPointService();
+	private readonly IPunishmentService _punishmentService = new PunishmentService();
+	private readonly PointsConverterPage converterPage = new();
+    public ICommand OpenPunishmentCommand { get; }
 	public PunishmentPage()
 	{
 		InitializeComponent();
-		UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", _punishmentPointService.GetPointValue()));
 
 		OpenPunishmentCommand = new Command<Punishment>(DecreasePunishmentValue);
 
 		Appearing += InitialCollectionCreation;
 		PunishmentPointService.PunishmentPointChanged += UpdatePunishmentPointLabel;
 	}
-	protected override void OnAppearing()
+	protected override async void OnAppearing()
 	{
-		base.OnAppearing();
-	}
-	private void UpdatePunishmentCollection()
-	{
-		var punishList = _punishmentService.GetAllPunishments();
+		var value = await _punishmentPointService.GetPointValueAsync();
 
-		Punishments.Clear();
+        UpdatePunishmentPointLabel(this, new PunishmentPointValueChangedEventArgs("", value, 0));
+
+        base.OnAppearing();
+	}
+	private async Task UpdatePunishmentCollectionAsync()
+	{
+		var punishList = await _punishmentService.GetAllPunishmentsAsync();
+
+        Punishments.Clear();
 
 		foreach (var punish in punishList)
-		{
 			Punishments.Add(punish);
-		}
 	}
-	private void DecreasePunishmentValue(Punishment punishment)
+	private async void DecreasePunishmentValue(Punishment punishment)
 	{
-		var dbPunishment = _punishmentService.GetPunishmentById(punishment.Id);
+		var dbPunishment = await _punishmentService.GetPunishmentByIdAsync(punishment.Id);
+
+		if (dbPunishment == null) return;
+
+		int result = 0;
 
 		if (punishment.ValueDecreaser != dbPunishment.ValueDecreaser)
 		{
 			dbPunishment.ValueDecreaser = punishment.ValueDecreaser;
 
-			_punishmentService.UpdatePunishment(dbPunishment);
+			result = await _punishmentService.UpdatePunishmentAsync(dbPunishment);
 		}
 
-		var updatedPunishment = _punishmentService.DecreasePunishmentValueById(punishment.Id);
+		var updatedPunishment = await _punishmentService.DecreasePunishmentValueByIdAsync(punishment.Id);
 
-		if (updatedPunishment.Value <= 0)
-		{
-			_punishmentService.DeletePunishment(updatedPunishment);
-		}
+		if (updatedPunishment != null && updatedPunishment.Value <= 0)
+			result = await _punishmentService.DeletePunishmentAsync(updatedPunishment);
 
-		//update observable collection
-		UpdatePunishmentCollection();
+		if (result > 0)
+			await UpdatePunishmentCollectionAsync();
 	}
-	private async void InitialCollectionCreation(object sender, EventArgs e)
+	private async void InitialCollectionCreation(object? sender, EventArgs e)
 	{
 		Punishments.Clear();
 		BindingContext = this;
 
-		await Task.Delay(200);
-
-		var list = _punishmentService.GetAllPunishments();
+		var list = await _punishmentService.GetAllPunishmentsAsync();
 
 		foreach (var item in list)
-		{
-			await Task.Delay(25);
-
 			Punishments.Add(item);
-		}
 	}
 	private void BorderOpenRulesPage_Tapped(object sender, TappedEventArgs e)
 	{
@@ -82,14 +80,12 @@ public partial class PunishmentPage : ContentPage
 	}
 	private void BorderOpenPointsConverterPage_Tapped(object sender, TappedEventArgs e)
 	{
-		var newPage = new PointsConverterPage();
+        //NavigationPage.SetHasNavigationBar(converterPage, false);
 
-		NavigationPage.SetHasNavigationBar(newPage, false);
-
-		Navigation.PushAsync(newPage);
+		Navigation.PushAsync(new PointsConverterPage());
 	}
-	private void UpdatePunishmentPointLabel(object sender, PunishmentPointValueChangedEventArgs e)
+	private void UpdatePunishmentPointLabel(object? sender, PunishmentPointValueChangedEventArgs e)
 	{
-		LabelPunishmentPoints.Text = _punishmentPointService.GetPointValue().ToString();
+		LabelPunishmentPoints.Text = e.Value.ToString();
 	}
 }

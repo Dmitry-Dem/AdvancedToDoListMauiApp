@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 namespace AdvancedToDoListMauiApp.Models
 {
     [Table("TaskGroups")]
-	public class TaskGroup
-	{
-		[PrimaryKey, AutoIncrement, Column("Id")]
-		public int Id { get; set; }
-        public string Name { get; set; }
+	public class TaskGroup : BaseEntity
+    {
+        public string Name { get; set; } = null!;
 
-		[OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<UserTask> Tasks { get; set; }
+        [OneToMany(CascadeOperations = CascadeOperation.All)]
+        public List<UserTask> Tasks { get; set; } = new List<UserTask>();
     }
 }

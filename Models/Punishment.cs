@@ -3,13 +3,11 @@
 namespace AdvancedToDoListMauiApp.Models
 {
     [Table("Punishments")]
-    public class Punishment
+    public class Punishment : BaseEntity
     {
-        [PrimaryKey, AutoIncrement, Column("Id")]
-        public int Id { get; set; }
 		public int Value { get; set; }
         public int ValueDecreaser { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
         public int PunishmentTypeId { get; set; }
     }
 }

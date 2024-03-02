@@ -1,9 +1,4 @@
-﻿using AdvancedToDoListMauiApp.Data;
-using AdvancedToDoListMauiApp.Interfaces;
-using AdvancedToDoListMauiApp.Models;
-using AdvancedToDoListMauiApp.Services;
-
-namespace AdvancedToDoListMauiApp;
+﻿namespace AdvancedToDoListMauiApp;
 
 public partial class MainPage : ContentPage
 {

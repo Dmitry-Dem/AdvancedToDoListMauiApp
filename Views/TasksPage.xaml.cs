@@ -1,5 +1,5 @@
+using AdvancedToDoListMauiApp.Services.Interfaces;
 using AdvancedToDoListMauiApp.Models;
-using AdvancedToDoListMauiApp.Interfaces;
 using AdvancedToDoListMauiApp.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -10,11 +10,11 @@ public partial class TasksPage : ContentPage
 {
 	public ObservableCollection<TaskGroup> Groups { get; set; } = new ObservableCollection<TaskGroup>();
 	public ObservableCollection<UserTask> Tasks { get; set; } = new ObservableCollection<UserTask>();
-	private TaskGroup _selectedTaskGroup { get; set; }
+	private TaskGroup? SelectedTaskGroup { get; set; }
 
-	private IUserTaskService _userTaskService = new UserTaskService();
+	private readonly IUserTaskService _userTaskService = new UserTaskService();
 	
-	private ITaskGroupService _taskGroupService = new TaskGroupService();
+	private readonly ITaskGroupService _taskGroupService = new TaskGroupService();
 	public ICommand DeleteTaskCommand { get; set; }
 	public TasksPage()
 	{
@@ -31,10 +31,10 @@ public partial class TasksPage : ContentPage
 			Tasks.Clear();
 		}
 
-		if (_selectedTaskGroup != null)
+		if (SelectedTaskGroup != null)
 		{
 			var sortedTasks = from item in 
-						(_selectedTaskGroup.Tasks ?? new List<UserTask>())
+						(SelectedTaskGroup.Tasks ?? new List<UserTask>())
 						orderby item.IsDone
 						select item;
 
@@ -44,13 +44,13 @@ public partial class TasksPage : ContentPage
 			}
 		}
 	}
-	private void DeleteUserTask(UserTask task)
+	private async void DeleteUserTask(UserTask task)
 	{
 		Tasks.Remove(task);
 
-		_userTaskService.DeleteUserTask(task);
+		await _userTaskService.DeleteUserTaskAsync(task);
 	}
-	private void OnCheckBoxTapped(object sender, TappedEventArgs e)
+	private async void OnCheckBoxTapped(object sender, TappedEventArgs e)
 	{
 		var checkBox = (CheckBox)sender;
 
@@ -60,11 +60,13 @@ public partial class TasksPage : ContentPage
 
 		var userTaskFromListId = userTaskFromList.Id;
 
-		var userTask = _userTaskService.GetUserTaskById(userTaskFromListId);
+		var userTask = await _userTaskService.GetUserTaskByIdAsync(userTaskFromListId);
+
+		if (userTask == null) return;
 
 		userTask.IsDone = checkBox.IsChecked;
 
-		_userTaskService.UpdateUserTask(userTask);
+		await _userTaskService.UpdateUserTaskAsync(userTask);
 
 		if (userTask.IsDone)
 		{
@@ -81,18 +83,16 @@ public partial class TasksPage : ContentPage
 	private void ButtonAddNewTask_Clicked(object sender, EventArgs e)
 	{
 		//open panel to add new task
-		if (_selectedTaskGroup != null)
+		if (SelectedTaskGroup != null)
 		{
 			PanelAddNewUserTask.IsVisible = true;
 		}
 	}
-	private async void InitialCollectionCreation(object sender, EventArgs e)
+	private async void InitialCollectionCreation(object? sender, EventArgs e)
 	{
 		BindingContext = this;
 
-		await Task.Delay(300);
-
-		var listGroups = _taskGroupService.GetAllTaskGroups();
+		var listGroups = await _taskGroupService.GetAllTaskGroupsAsync();
 
 		foreach (var item in listGroups)
 		{
@@ -101,7 +101,7 @@ public partial class TasksPage : ContentPage
 			Groups.Add(item);
 		}
 
-		_selectedTaskGroup = listGroups.First();
+		SelectedTaskGroup = listGroups.First();
 
 		UpdateTasksCollection();
 
@@ -111,37 +111,36 @@ public partial class TasksPage : ContentPage
 	{
 		PanelAddNewTaskGroup.IsVisible = true;
 	}
-	private void TapSelectNewCurrentTaskGroup_Tapped(object sender, TappedEventArgs e)
+	private async void TapSelectNewCurrentTaskGroup_Tapped(object sender, TappedEventArgs e)
 	{
 		var taskGroupBorder = sender as Border;
 
-		if (taskGroupBorder != null)
-		{
-			int taskGroupId = int.Parse(taskGroupBorder.ClassId);
+		if (taskGroupBorder == null)
+			return;
+		
+		int taskGroupId = int.Parse(taskGroupBorder.ClassId);
 
-			var selectdetGroup = _taskGroupService.GetTaskGroupById(taskGroupId);
+		var selectdetGroup = await _taskGroupService.GetTaskGroupByIdAsync(taskGroupId);
 
-			//Switch Selected Group With First element in Groups collection
-			Groups.Move(Groups.IndexOf(Groups.First(g => g.Id == selectdetGroup.Id)), 0);
+		if (selectdetGroup == null) return;
 
-			CollectionViewGroups.ScrollTo(Groups[0], ScrollToPosition.Start);
+		Groups.Move(Groups.IndexOf(Groups.First(g => g.Id == selectdetGroup.Id)), 0);
 
-			if (selectdetGroup != null)
-			{
-				_selectedTaskGroup = selectdetGroup;
+		CollectionViewGroups.ScrollTo(Groups[0], ScrollToPosition.Start);
 
-				UpdateTasksCollection();
-			}
-		}
-	}
-	private void BorderDeleteSelectedGroupButto_Tapped(object sender, TappedEventArgs e)
+        SelectedTaskGroup = selectdetGroup;
+
+        UpdateTasksCollection();
+    }
+	private async void BorderDeleteSelectedGroupButto_Tapped(object sender, TappedEventArgs e)
 	{
-		if (_selectedTaskGroup != null)
-		{
-			_taskGroupService.DeleteTaskGroup(_selectedTaskGroup);
+		if (SelectedTaskGroup == null)
+			return;
 
-			Groups.Remove(_selectedTaskGroup);
-		}
+		var result = await _taskGroupService.DeleteTaskGroupAsync(SelectedTaskGroup);
+
+		if (result > 0)
+			Groups.Remove(SelectedTaskGroup);
 	}
 	//Panel add new UserTask
 	private void ClosePanelAddNewUserTask()
@@ -151,7 +150,47 @@ public partial class TasksPage : ContentPage
 		EntryUserTaskName.Text = string.Empty;
 		EntryPunishmentPoint.Text = string.Empty;
 	}
-	private bool IsPanelDataUserTaskValid(string name, string pp)
+	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
+	{
+		ClosePanelAddNewUserTask();
+	}
+	private async void TapBorderSavePanelDataUserTaskButton_Tapped(object sender, TappedEventArgs e)
+	{
+		if (SelectedTaskGroup == null)
+		{
+            ClosePanelAddNewUserTask();
+			return;
+        }
+
+		string userTaskName = EntryUserTaskName.Text;
+		string pp = EntryPunishmentPoint.Text;
+
+		if (!IsPanelDataUserTaskValid(userTaskName, pp))
+			return;
+
+		var newTask = new UserTask()
+		{
+			Description = userTaskName,
+			IsDone = false,
+			PunishmentPoint = int.Parse(pp),
+			TaskGroupId = SelectedTaskGroup.Id
+		};
+
+		if (SelectedTaskGroup.Tasks == null)
+			SelectedTaskGroup.Tasks = new List<UserTask>();
+
+		SelectedTaskGroup.Tasks.Add(newTask);
+
+		var result = await _userTaskService.AddUserTaskAsync(newTask);
+
+		if (result > 0)
+		{
+			Tasks.Insert(0, newTask);
+		}
+
+		ClosePanelAddNewUserTask();
+	}
+	private static bool IsPanelDataUserTaskValid(string name, string pp)
 	{
 		if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(pp))
 		{
@@ -169,43 +208,6 @@ public partial class TasksPage : ContentPage
 
 		return false;
 	}
-	private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-	{
-
-	}
-	private void TapBorderClosePanelButton_Tapped(object sender, TappedEventArgs e)
-	{
-		ClosePanelAddNewUserTask();
-	}
-	private void TapBorderSavePanelDataUserTaskButton_Tapped(object sender, TappedEventArgs e)
-	{
-		string userTaskName = EntryUserTaskName.Text;
-		string pp = EntryPunishmentPoint.Text;
-
-		if (IsPanelDataUserTaskValid(userTaskName, pp))
-		{
-			var newTask = new UserTask()
-			{
-				Description = userTaskName,
-				IsDone = false,
-				PunishmentPoint = int.Parse(pp),
-				TaskGroupId = _selectedTaskGroup.Id
-			};
-
-			if (_selectedTaskGroup.Tasks == null)
-			{
-				_selectedTaskGroup.Tasks = new List<UserTask>();
-			}
-
-			_selectedTaskGroup.Tasks.Add(newTask);
-
-			_userTaskService.AddNewUserTask(newTask);
-
-			Tasks.Insert(0, newTask);
-
-			ClosePanelAddNewUserTask();
-		}
-	}
 	//Panel add new TaskGroup
 	private void ClosePanelAddNewTaskGroup()
 	{
@@ -217,26 +219,34 @@ public partial class TasksPage : ContentPage
 	{
 		ClosePanelAddNewTaskGroup();
 	}
-	private void TapBorderSavePanelDataTaskGroupButton_Tapped(object sender, TappedEventArgs e)
+	private async void TapBorderSavePanelDataTaskGroupButton_Tapped(object sender, TappedEventArgs e)
 	{
 		string groupName = EntryTaskGroupName.Text;
 
-		if (!string.IsNullOrEmpty(groupName))
+		if (string.IsNullOrEmpty(groupName))
+			return;
+		
+		var newTaskGroup = new TaskGroup()
 		{
-			var newTaskGroup = new TaskGroup()
-			{
-				Name = groupName,
-				Tasks = new List<UserTask>()
-			};
+			Name = groupName,
+			Tasks = new List<UserTask>()
+		};
 
-			_taskGroupService.AddNewTaskGroup(newTaskGroup);
+		var result = await _taskGroupService.AddTaskGroupAsync(newTaskGroup);
 
+		if (result > 0)
+		{
 			Groups.Add(newTaskGroup);
 
-			if (_selectedTaskGroup == null)
-				_selectedTaskGroup = newTaskGroup;
-
-			ClosePanelAddNewTaskGroup();
+			if (SelectedTaskGroup == null)
+				SelectedTaskGroup = newTaskGroup;
 		}
+
+		ClosePanelAddNewTaskGroup();
 	}
+
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+
+    }
 }

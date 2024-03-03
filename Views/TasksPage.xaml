@@ -109,7 +109,7 @@
                                 ClassId="{Binding Id}">
 
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="TapSelectNewCurrentTaskGroup_Tapped"/>
+                                    <TapGestureRecognizer Tapped="SelectTaskGroup_Tapped"/>
                                 </Border.GestureRecognizers>
 
                                 <Label
@@ -131,7 +131,6 @@
             </CollectionView>
 
             <!--Task list-->
-
             <Rectangle
                 Grid.Row="3"
                 HeightRequest="1"

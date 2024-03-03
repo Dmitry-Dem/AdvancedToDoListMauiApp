@@ -13,11 +13,10 @@ public partial class PunishmentPage : ContentPage
 
 	private readonly IPunishmentPointService _punishmentPointService = new PunishmentPointService();
 	private readonly IPunishmentService _punishmentService = new PunishmentService();
-	private readonly PointsConverterPage converterPage = new();
     public ICommand OpenPunishmentCommand { get; }
-	public PunishmentPage()
+    public PunishmentPage()
 	{
-		InitializeComponent();
+        InitializeComponent();
 
 		OpenPunishmentCommand = new Command<Punishment>(DecreasePunishmentValue);
 
@@ -47,22 +46,21 @@ public partial class PunishmentPage : ContentPage
 
 		if (dbPunishment == null) return;
 
-		int result = 0;
-
 		if (punishment.ValueDecreaser != dbPunishment.ValueDecreaser)
 		{
 			dbPunishment.ValueDecreaser = punishment.ValueDecreaser;
 
-			result = await _punishmentService.UpdatePunishmentAsync(dbPunishment);
+			await _punishmentService.UpdatePunishmentAsync(dbPunishment);
 		}
 
 		var updatedPunishment = await _punishmentService.DecreasePunishmentValueByIdAsync(punishment.Id);
 
-		if (updatedPunishment != null && updatedPunishment.Value <= 0)
-			result = await _punishmentService.DeletePunishmentAsync(updatedPunishment);
+		if (updatedPunishment == null) return;
 
-		if (result > 0)
-			await UpdatePunishmentCollectionAsync();
+		if (updatedPunishment.Value <= 0)
+			await _punishmentService.DeletePunishmentAsync(updatedPunishment);
+
+		await UpdatePunishmentCollectionAsync();
 	}
 	private async void InitialCollectionCreation(object? sender, EventArgs e)
 	{
@@ -80,8 +78,6 @@ public partial class PunishmentPage : ContentPage
 	}
 	private void BorderOpenPointsConverterPage_Tapped(object sender, TappedEventArgs e)
 	{
-        //NavigationPage.SetHasNavigationBar(converterPage, false);
-
 		Navigation.PushAsync(new PointsConverterPage());
 	}
 	private void UpdatePunishmentPointLabel(object? sender, PunishmentPointValueChangedEventArgs e)

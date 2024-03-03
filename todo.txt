@@ -1,0 +1,19 @@
+﻿* Add DI
+
+* Use AutoMapper /PunishmentService/ 49
+
+* Add raw sql queries for logs etc. improve query perfomance.
+
+* Add generic repository
+
+* Add UoW
+
+* Add base Service
+
+* Add base font size and colors for the app and update views
+
+* Add Tests (XUnit)
+
+* Implement Notes Page
+
+* Fix views: for Windows and other screen sizes

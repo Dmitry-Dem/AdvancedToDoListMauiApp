@@ -48,14 +48,16 @@ namespace AdvancedToDoListMauiApp.Services
 
             var change = new PunishmentChanges()
             {
+                Name = punish.Description,
                 PunishmentId = punish.Id,
-                Value = value,
+                Value = value * -1,
                 ValueIncreased = true
             };
 
-            await _punishmentChangesService.AddPunishmentChangesAsync(change);
+            var result = await _db.UpdateAsync(punish);
 
-            await _db.UpdateAsync(punish);
+            if (result > 0)
+                await _punishmentChangesService.AddPunishmentChangesAsync(change);
 
             return punish;
         }

@@ -27,9 +27,7 @@ public partial class TasksPage : ContentPage
 	private void UpdateTasksCollection()
 	{
 		if (Tasks.Count > 0)
-		{
 			Tasks.Clear();
-		}
 
 		if (SelectedTaskGroup != null)
 		{
@@ -39,9 +37,7 @@ public partial class TasksPage : ContentPage
 						select item;
 
 			foreach (var task in sortedTasks)
-			{
 				Tasks.Add(task);
-			}
 		}
 	}
 	private async void DeleteUserTask(UserTask task)
@@ -82,17 +78,20 @@ public partial class TasksPage : ContentPage
 	}
 	private void ButtonAddNewTask_Clicked(object sender, EventArgs e)
 	{
-		//open panel to add new task
 		if (SelectedTaskGroup != null)
-		{
 			PanelAddNewUserTask.IsVisible = true;
-		}
 	}
 	private async void InitialCollectionCreation(object? sender, EventArgs e)
 	{
 		BindingContext = this;
 
 		var listGroups = await _taskGroupService.GetAllTaskGroupsAsync();
+
+		if (!listGroups.Any())
+		{
+            Appearing -= InitialCollectionCreation;
+			return;
+        }
 
 		foreach (var item in listGroups)
 		{
@@ -101,7 +100,7 @@ public partial class TasksPage : ContentPage
 			Groups.Add(item);
 		}
 
-		SelectedTaskGroup = listGroups.First();
+		SelectedTaskGroup = listGroups.FirstOrDefault();
 
 		UpdateTasksCollection();
 
@@ -111,7 +110,7 @@ public partial class TasksPage : ContentPage
 	{
 		PanelAddNewTaskGroup.IsVisible = true;
 	}
-	private async void TapSelectNewCurrentTaskGroup_Tapped(object sender, TappedEventArgs e)
+	private async void SelectTaskGroup_Tapped(object sender, TappedEventArgs e)
 	{
 		var taskGroupBorder = sender as Border;
 
@@ -142,7 +141,6 @@ public partial class TasksPage : ContentPage
 		if (result > 0)
 			Groups.Remove(SelectedTaskGroup);
 	}
-	//Panel add new UserTask
 	private void ClosePanelAddNewUserTask()
 	{
 		PanelAddNewUserTask.IsVisible = false;
@@ -208,7 +206,6 @@ public partial class TasksPage : ContentPage
 
 		return false;
 	}
-	//Panel add new TaskGroup
 	private void ClosePanelAddNewTaskGroup()
 	{
 		PanelAddNewTaskGroup.IsVisible = false;
@@ -244,7 +241,6 @@ public partial class TasksPage : ContentPage
 
 		ClosePanelAddNewTaskGroup();
 	}
-
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
 

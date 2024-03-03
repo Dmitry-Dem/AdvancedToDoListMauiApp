@@ -1,7 +1,4 @@
-﻿using AdvancedToDoListMauiApp.Data;
-using Microsoft.Extensions.Logging;
-
-namespace AdvancedToDoListMauiApp;
+﻿namespace AdvancedToDoListMauiApp;
 
 public static class MauiProgram
 {
@@ -17,8 +14,10 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
 
+        builder.Services.AddAutoMapper(typeof(MauiApp));
+
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
 		return builder.Build();

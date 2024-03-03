@@ -2,7 +2,7 @@
 
 namespace AdvancedToDoListMauiApp.Services.Interfaces;
 
-internal interface IPunishmentService
+public interface IPunishmentService
 {
     Task<List<Punishment>> GetAllPunishmentsAsync();
     Task<Punishment?> GetPunishmentByIdAsync(int Id);

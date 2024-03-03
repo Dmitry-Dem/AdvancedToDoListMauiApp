@@ -6,8 +6,10 @@ namespace AdvancedToDoListMauiApp.Models;
 [Table("PunishmentChanges")]
 public class PunishmentChanges : BaseEntity
 {
+    public string Name { get; set; } = null!;
     public int Value { get; set; }
     public bool ValueIncreased { get; set; } = true;
     [ForeignKey(typeof(Punishment))]
     public int PunishmentId { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
